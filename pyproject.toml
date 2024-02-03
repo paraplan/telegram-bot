@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "vgpk-bot"
+version = "0.1.0"
+description = ""
+authors = ["ashumel", "VodoGamer"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "^3.3.0"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.1"
+ruff = "^0.2.0"
+pyright = "^1.1.349"
+pre-commit = "^3.6.0"
+
+[tool.ruff]
+select = ["I", "E", "F", "B", "Q"]
+exclude = ["venv", "migrations"]
+line-length = 99
+target-version = "py311"
+
+[tool.black]
+line-length = 99
+target-version = ['py311']
+
+[tool.pyright]
+include = ["src"]
+pythonVersion = "3.11"
+venvPath = "."
+venv = ".venv"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
