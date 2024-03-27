@@ -1,4 +1,9 @@
-from schedule_parser.env import FILE
-from schedule_parser.schedule import parse_schedule
+import orjson
 
-print(parse_schedule(FILE))
+from schedule_parser.study_day import StudyDay
+
+with open("schedule.json") as file:
+    text = file.read()
+print(orjson.loads(text))
+schedule = StudyDay(**orjson.loads(text))
+print(schedule)

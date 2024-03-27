@@ -1,9 +1,12 @@
 import asyncio
+import locale
 import logging
 import sys
 
 from bot.client import bot, dp
 from bot.handlers import routers
+
+locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
 
 async def main() -> None:

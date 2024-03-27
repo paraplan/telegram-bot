@@ -1,50 +1,50 @@
 import asyncio
 import logging
-import re
-import typing
+from datetime import date
 
-from aiohttp import ClientSession
-from bs4 import BeautifulSoup
+import orjson
+from aiohttp import ClientSession, TCPConnector
+
+from daemon.env import BASE_SCHEMA_API_URL, SCHEMA_API_TOKEN
+from schedule_parser.study_day import StudyDay
 
 logging.basicConfig(level=logging.DEBUG)
-SCHEDULE_URL: typing.Final[str] = "https://vgke.by/raspisanie-zanjatij/"
 
 
-async def get_page(url: str) -> bytes:
+async def get_page(url: str, params: dict[str, str | int]) -> bytes:
     headers: dict[str, str] = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0"
     }
-    async with ClientSession(headers=headers) as session:
+    async with ClientSession(headers=headers, connector=TCPConnector(ssl=False)) as session:
         logging.debug("Make request to %s", url)
-        async with session.get(url) as resp:
-            logging.debug("Get response with code: %s", resp.status)
+        async with session.get(url, params=params) as resp:
+            logging.debug("Get response (%s) with code: %s", resp.url, resp.status)
             return await resp.read()
 
 
-async def get_schedules_links() -> list[str]:
-    data = await get_page(SCHEDULE_URL)
-    bs = BeautifulSoup(data, features="html.parser")
-    elements = bs.find_all(
-        "iframe",
+async def get_study_day_data(date: date) -> bytes:
+    return await get_page(
+        f"{BASE_SCHEMA_API_URL}/modules/scheduleeditor/scheduledata.php",
         {
-            "src": re.compile(r"sso"),
-            "width": "900px",
-            "height": "900px",
-            "frameborder": 0,
+            "date": date.strftime("%Y-%m-%d"),
+            "apikey": SCHEMA_API_TOKEN,
+            "actdate": "now",
+            "area": 1,
         },
     )
-    logging.debug("Found elements: %s", elements)
-    schedules = [re.sub(r".*src=", "", element["src"]) for element in elements]
-    logging.debug("Schedules links: %s", schedules)
-    return schedules
 
 
-async def get_schedules() -> list[bytes]:
-    return [await get_page(schedule_url) for schedule_url in await get_schedules_links()]
+async def get_bells_data(id: int) -> bytes:
+    return await get_page(
+        f"{BASE_SCHEMA_API_URL}/modules/bellsscheduleeditor/bellsscheduledata.php",
+        {"id": id, "apikey": SCHEMA_API_TOKEN, "actdate": "now", "area": 1},
+    )
 
 
 async def main():
-    print(await get_schedules())
+    study_day_data = await get_study_day_data(date.today())
+    study_day = StudyDay(**orjson.loads(study_day_data))
+    print(study_day)
 
 
 if __name__ == "__main__":

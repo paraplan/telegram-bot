@@ -2,6 +2,6 @@ from typing import Iterable
 
 from aiogram import Router
 
-from . import start
+from . import schedule, start
 
-routers: Iterable[Router] = (start.router,)
+routers: Iterable[Router] = (start.router, schedule.router)

@@ -1,0 +1,9 @@
+📍 {{date.strftime("%A")}}, {{date.day}} {{date.strftime("%B")}}<br>
+{% for lesson in lessons %}
+{FOURPACES}{{loop.index}}. <b>{{ lesson.title }}</b>
+<br>
+{FOURPACES}Ауд. {{ lesson.room }}
+<br>
+{FOURPACES}{{ lesson.time }}
+<br><br>
+{% endfor %}
