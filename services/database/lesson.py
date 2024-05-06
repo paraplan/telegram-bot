@@ -1,29 +1,23 @@
-from typing import Final
 from uuid import UUID
 
-from . import SingletonClient, get_parameters, read_query_file
+from database.queries.lesson import save_insert, select_by_id, select_by_relations
 
-INSERT: Final[str] = read_query_file("lesson/unconflict_insert.edgeql")
-SELECT_BY_SCHEMA_ID: Final[str] = read_query_file("lesson/select_by_id.edgeql")
-SELECT_BY_RELATIONS: Final[str] = read_query_file("lesson/select_by_relations.edgeql")
+from . import BaseRepository, get_parameters
 
 
-class LessonRepository:
-    def __init__(self) -> None:
-        self._client = SingletonClient.get_instance()
+class LessonRepository(BaseRepository):
+    async def get_by_id(self, id: UUID):
+        return await select_by_id(self._client, **get_parameters(locals()))
 
-    async def get_by_id(self, id: UUID) -> list[object]:
-        return await self._client.query(SELECT_BY_SCHEMA_ID, id=id)
+    async def get_by_relations(self, cabinet_id: int, lecturer_id: int):
+        return await select_by_relations(self._client, **get_parameters(locals()))
 
-    async def get_by_relations(self, cabinet_id: int, lecturer_id: int) -> list[object]:
-        return await self._client.query(SELECT_BY_RELATIONS, **get_parameters(locals()))
+    async def add(self, cabinet_id: int, lecturer_id: int):
+        return await save_insert(self._client, **get_parameters(locals()))
 
-    async def add(self, cabinet_id: int, lecturer_id: int) -> None:
-        return await self._client.execute(INSERT, **get_parameters(locals()))
-
-    async def add_or_select(self, cabinet_id: int, lecturer_id: int) -> list[object]:
+    async def add_or_select(self, cabinet_id: int, lecturer_id: int):
         lessons = await self.get_by_relations(cabinet_id, lecturer_id)
-        if lessons == []:
+        if len(lessons) == 0:
             await self.add(cabinet_id, lecturer_id)
             lessons = await self.get_by_relations(cabinet_id, lecturer_id)
         return lessons
