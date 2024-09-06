@@ -9,33 +9,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: pipx install poetry
-
       - uses: actions/setup-python@v4
-        id: python-setup
         with:
-          python-version: "3.11"
-          cache: poetry
+          python-version: "3.12"
 
-      - name: Set python version for poetry
-        run: poetry env use 3.11
-
-      - name: Validate the structure of the pyproject.toml
-        run: poetry check
-
-      - name: Verify that poetry.lock is consistent with pyproject.toml
-        run: poetry lock --check
+      - uses: yezz123/setup-uv@v4
 
       - name: Install dependencies
-        if: steps.python-setup.outputs.cache-hit != 'true'
-        run: poetry install --with dev
+        run: uv sync
 
-      - name: Check code formatting by black
-        run: poetry run black . --check
+      - name: Check code formatting
+        run: uv run ruff format . --check
 
       - name: Run ruff
-        run: poetry run ruff .
+        run: uv run ruff check .
 
       - name: Check types by pyright
-        run: poetry run pyright
+        run: uv run pyright src

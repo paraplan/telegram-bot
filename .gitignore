@@ -152,6 +152,5 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# IDEs
-.idea/
-.vscode/
+# template schedule
+schedule.json
