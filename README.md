@@ -4,18 +4,18 @@
 
 1. Установить все зависимости
 
--   [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
+-   [uv](https://docs.astral.sh/uv)
 -   [Edgedb](https://docs.edgedb.com/get-started/quickstart#installation)
 
 2. Установить пакеты и инициализировать базу данных
 
 ```zsh
-poetry install --with dev
+uv sync
 edgedb project init
 ```
 
-3. Запустить пакет
+3. Запустить нужный модуль
 
 ```zsh
-poetry run python3 -m bot # либо daemon, schedule_parser
+uv run python3 -m src.bot # либо src.daemon, src.schedule_parser
 ```

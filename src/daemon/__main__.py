@@ -1,6 +1,6 @@
 import asyncio
 
-from daemon.schedule_fetcher import get_updated_schedules
+from src.daemon.schedule_fetcher import get_updated_schedules
 
 DAEMON_INTERVAL = 60
 
