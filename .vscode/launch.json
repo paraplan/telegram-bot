@@ -1,11 +1,17 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python Debugger: Module",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "src.schedule_parser"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Parser",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "src.schedule_parser"
+    },
+    {
+      "name": "Daemon",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "src.daemon"
+    }
+  ]
 }

@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["orjson>=3.10.7", "pydantic>=2.9.0"]
+dependencies = [
+    "aiohttp>=3.10.5",
+    "orjson>=3.10.7",
+    "pydantic>=2.9.0",
+    "python-dotenv>=1.0.1",
+]
 
 [tool.uv]
 dev-dependencies = ["pyright>=1.1.379", "ruff>=0.6.4"]
