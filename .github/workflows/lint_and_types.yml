@@ -21,8 +21,8 @@ jobs:
       - name: Check code formatting
         run: uv run ruff format . --check
 
-      - name: Run ruff
+      - name: Check code linting
         run: uv run ruff check .
 
-      - name: Check types by pyright
+      - name: Check code types
         run: uv run pyright src

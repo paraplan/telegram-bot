@@ -1,9 +1,12 @@
 import datetime
+import logging
 
 import orjson
 
 from src.daemon.http_client import get_schedule_data
 from src.schedule_parser.study_day import StudyDay
+
+logger = logging.getLogger(__name__)
 
 
 async def get_updated_schedules() -> list[StudyDay]:
@@ -27,4 +30,5 @@ def get_dates_for_fetch() -> list[datetime.date]:
         dates = [today + datetime.timedelta(days=1)]
     else:  # Monday - Thursday
         dates.append(today + datetime.timedelta(days=1))
+    logger.debug("Dates for fetch: %s", dates)
     return dates
