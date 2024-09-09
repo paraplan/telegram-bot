@@ -19,7 +19,7 @@ module default {
 	}
 
 	type SeminarSchedule {
-		required date: datetime;
+		required date: cal::local_date;
 		required `group`: `Group`;
 		required multi seminars: Seminar;
 	}

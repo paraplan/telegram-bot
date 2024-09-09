@@ -12,7 +12,7 @@ WITH
     FILTER
       .`group` = `group` AND
       .seminars = seminars AND
-      .date = <datetime>$date
+      .date = <cal::local_date>$date
   )
 
 SELECT (

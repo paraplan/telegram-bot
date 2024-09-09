@@ -1,16 +1,30 @@
+from zoneinfo import ZoneInfo
+
 import edgedb
-from telegrinder import API, ABCMiddleware, Context, Message, Telegrinder, Token, WaiterMachine
+from telegrinder import (
+    API,
+    ABCMiddleware,
+    Context,
+    HTMLFormatter,
+    Message,
+    Telegrinder,
+    Token,
+    WaiterMachine,
+)
 from telegrinder.modules import logger
 from telegrinder.types import BotCommand
 
 from src.database.generated import InsertUserResult, insert_user
 from src.env import BOT_TOKEN, LOGGER_LEVEL
 
+TIMEZONE = ZoneInfo("Europe/Moscow")
+
 logger.set_level(LOGGER_LEVEL)
 
 api = API(token=Token(BOT_TOKEN))
 bot = Telegrinder(api)
 wm = WaiterMachine()
+formatter = HTMLFormatter
 
 db_client = edgedb.create_async_client()
 
@@ -24,7 +38,6 @@ class UserRegisterMiddleware(ABCMiddleware[Message]):
 
 
 async def update_commands():
-    print(123)
     await api.set_my_commands(
         [
             BotCommand("start", "🤨"),

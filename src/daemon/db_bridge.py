@@ -52,13 +52,13 @@ async def update_seminars_data(
         db_client,
         group_id=group_id,
         seminar_ids=seminar_ids,
-        date=datetime.datetime.combine(date, datetime.time(0, 0), tzinfo=TIMEZONE),
+        date=date,
     )
     new_schedule_data = await update_or_insert_schedule(
         db_client,
         group_id=group_id,
         seminar_ids=seminar_ids,
-        date=datetime.datetime.combine(date, datetime.time(0, 0), tzinfo=TIMEZONE),
+        date=date,
     )
     return old_schedule_data, new_schedule_data
 

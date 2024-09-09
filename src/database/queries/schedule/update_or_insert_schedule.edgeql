@@ -11,7 +11,7 @@ WITH
     SELECT SeminarSchedule
     FILTER
       .`group` = group_obj AND
-      .date = <datetime>$date
+      .date = <cal::local_date>$date
   )
 
 SELECT (
@@ -27,7 +27,7 @@ SELECT (
     INSERT SeminarSchedule {
       `group` := group_obj,
       seminars := seminars,
-      date := <datetime>$date,
+      date := <cal::local_date>$date,
     }
   )
 ) { ** };
