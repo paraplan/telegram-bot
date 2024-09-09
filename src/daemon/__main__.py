@@ -3,10 +3,11 @@ import logging
 
 from src.daemon.db_bridge import update_schedules
 from src.daemon.schedule_fetcher import get_updated_schedules
+from src.env import LOGGER_LEVEL
 
 DAEMON_INTERVAL = 60
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=LOGGER_LEVEL)
 logger = logging.getLogger(__name__)
 
 
