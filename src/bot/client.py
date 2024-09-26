@@ -42,7 +42,8 @@ async def update_commands():
         [
             BotCommand("start", "🤨"),
             BotCommand("group", "Выбрать группу"),
-            BotCommand("next_day", "Расписание на завтра"),
+            BotCommand("tomorrow", "Расписание на завтра"),
+            BotCommand("today", "Расписание на сегодня"),
         ]
     )
 

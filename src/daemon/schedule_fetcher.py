@@ -3,7 +3,7 @@ import logging
 
 import orjson
 
-from src.daemon.http_client import get_schedule_data
+from src.daemon.http_client import FetchError, get_schedule_data
 from src.schedule_parser.study_day import StudyDay
 
 logger = logging.getLogger(__name__)
@@ -14,8 +14,11 @@ async def get_updated_schedules() -> list[StudyDay]:
 
     dates = get_dates_for_fetch()
     for date in dates:
-        schedule_data = await get_schedule_data(date)
-        updated_schedules.append(StudyDay(**orjson.loads(schedule_data)))
+        try:
+            schedule_data = await get_schedule_data(date)
+            updated_schedules.append(StudyDay(**orjson.loads(schedule_data)))
+        except FetchError as e:
+            logger.error("Failed to fetch schedule data for %s: %s", date, e)
     return updated_schedules
 
 

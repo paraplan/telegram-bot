@@ -1,0 +1,10 @@
+{{ group.full_name }} ({{ group.name }}) — {{ date.strftime('%d.%m.%Y') }}
+<br>
+<br>
+{% for index, seminar in grouped_seminars.items() %}
+    {{ index }}️⃣ <b>{{ seminar.name }}</b> — {{ seminar.cabinet }}
+    <br>
+    {FOURSPACES} {{ seminar.time }}
+    <br>
+    <br>
+{% endfor %}

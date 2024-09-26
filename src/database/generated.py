@@ -130,11 +130,17 @@ async def get_schedule_by_group(
 ) -> GetScheduleByGroupResult | None:
     return await executor.query_single(
         """\
-        select SeminarSchedule { id, date, `group`: { * }, seminars: { ** } }
+        select SeminarSchedule {
+          id,
+          date,
+          `group`: { * },
+          seminars: { ** } order by .number
+        }
         filter (
           .`group`.id = <uuid>$group_id and
           .date = <cal::local_date>$date
-        ) limit 1;\
+        )
+        limit 1;\
         """,
         group_id=group_id,
         date=date,

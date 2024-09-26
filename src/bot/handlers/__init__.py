@@ -2,6 +2,6 @@ from typing import Iterable
 
 from telegrinder import Dispatch
 
-from . import group, next_day, start
+from . import group, schedule, start
 
-dispatches: Iterable[Dispatch] = (start.dp, group.dp, next_day.dp)
+dispatches: Iterable[Dispatch] = (start.dp, group.dp, schedule.dp)

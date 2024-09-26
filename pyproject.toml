@@ -17,6 +17,10 @@ dependencies = [
 [tool.uv]
 dev-dependencies = ["pyright>=1.1.379", "ruff>=0.6.4"]
 
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
 [tool.ruff]
 lint.select = ["I", "E", "F", "B", "Q"]
 lint.ignore = ["B008"]

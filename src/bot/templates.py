@@ -2,16 +2,20 @@ import re
 
 import jinja2
 
+from src.bot.utils.datetime import datetime_filter
+
 
 def render_template(template_name: str, data: dict | None = None) -> str:
     if data is None:
         data = {}
-    template = _get_template_env().get_template(template_name)
+    jinja_env = _get_template_env()
+    jinja_env.filters["datetime_filter"] = datetime_filter
+    template = jinja_env.get_template(template_name)
     rendered = template.render(**data).replace("\n", " ")
     rendered = rendered.replace("<br>", "\n")
     rendered = re.sub(" +", " ", rendered).replace(" .", ".").replace(" ,", ",")
     rendered = "\n".join(line.strip() for line in rendered.split("\n"))
-    rendered = rendered.replace("{FOURPACES}", "    ")
+    rendered = rendered.replace("{FOURSPACES}", "    ")
     rendered = rendered.replace("{TWOSPACES}", "  ")
     return rendered
 
