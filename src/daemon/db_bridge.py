@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 async def update_schedules(schedules: list[StudyDay]):
     bells_dict = get_bells_dict(schedules)
     for schedule in schedules:
-        logger.debug("Updating schedule for %s", schedule.date)
+        logger.info("Updating schedule for %s", schedule.date)
         for area in schedule.areas:
             for group in area.groups:
                 seminars_for_group = await get_seminars_for_group(group, bells_dict)
