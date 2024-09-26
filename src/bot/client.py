@@ -15,7 +15,7 @@ from telegrinder.modules import logger
 from telegrinder.types import BotCommand
 
 from src.database.generated import InsertUserResult, insert_user
-from src.env import BOT_TOKEN, LOGGER_LEVEL
+from src.env import BOT_TOKEN, EDGEDB_DSN, LOGGER_LEVEL
 
 TIMEZONE = ZoneInfo("Europe/Moscow")
 
@@ -26,7 +26,7 @@ bot = Telegrinder(api)
 wm = WaiterMachine()
 formatter = HTMLFormatter
 
-db_client = edgedb.create_async_client()
+db_client = edgedb.create_async_client(EDGEDB_DSN, tls_security="insecure")
 
 
 @bot.on.message.register_middleware()

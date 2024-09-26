@@ -8,6 +8,5 @@ RUN uv sync
 COPY src/ ./src/
 COPY database/ ./database/
 COPY templates/ ./templates/
-COPY edgedb.toml ./
 
 ENTRYPOINT [ "uv", "run", "python3", "-m", "src.bot" ]

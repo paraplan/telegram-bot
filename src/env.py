@@ -9,7 +9,8 @@ BOT_TOKEN: Final[str] = os.getenv("BOT_TOKEN", "123546:supercooltoken")
 SCHEDULE_ENDPOINT: Final[str] = os.getenv("SCHEDULE_ENDPOINT", "https://example.com")
 SCHEDULE_TOKEN: Final[str] = os.getenv("SCHEDULE_TOKEN", "123546:supercooltoken")
 
-DATABASE_HOST: Final[str] = os.getenv("DATABASE_HOST", "edgedb")
+EDGEDB_INSTANCE: Final[str] = os.getenv("EDGEDB_INSTANCE", "edgedb")
+EDGEDB_DSN: Final[str] = os.getenv("EDGEDB_DSN", "edgedb://edgedb:5656")
 
 ValidLogLevels = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 

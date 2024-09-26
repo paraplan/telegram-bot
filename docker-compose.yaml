@@ -3,7 +3,19 @@ version: "3.8"
 services:
   bot:
     build:
-      dockerfile: ./Dockerfile
+      dockerfile: ./src/bot/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - edgedb
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+    restart: unless-stopped
+
+  daemon:
+    build:
+      dockerfile: ./src/daemon/Dockerfile
     env_file:
       - .env
     depends_on:
@@ -12,9 +24,14 @@ services:
 
   edgedb:
     image: edgedb/edgedb
+    container_name: edgedb
     environment:
       - EDGEDB_SERVER_SECURITY=insecure_dev_mode
     volumes:
       - "./database/schema:/dbschema:ro"
+      - edgedb_data:/var/lib/edgedb/data
     ports:
       - "5656:5656"
+
+volumes:
+  edgedb_data:
