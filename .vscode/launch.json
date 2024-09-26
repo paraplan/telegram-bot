@@ -12,6 +12,12 @@
       "type": "debugpy",
       "request": "launch",
       "module": "src.daemon"
+    },
+    {
+      "name": "Bot",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "src.bot"
     }
   ]
 }

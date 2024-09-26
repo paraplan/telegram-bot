@@ -10,20 +10,21 @@ class GroupedSeminar(BaseModel):
     name: str
     time: str
     cabinet: str | None = None
+    is_half: bool = True
 
     def __add__(self, obj: Self) -> Self:
-        _separator = " | "
-        self.name = f"{self.name}{_separator}{obj.name}"
-        self.time = f"{self.time}, {obj.time}"
+        self.name = f"{self.name} | {obj.name}" if self.name != obj.name else self.name
+        self.time = (
+            f"{self.time}, {obj.time}" if self.time.split(", ")[-1] != obj.time else self.time
+        )
         self.cabinet = f"{self.cabinet} | {obj.cabinet}"
         return self
 
 
 def group_seminars_for_numbers(seminars: list[GetScheduleByGroupResultSeminarsItem]):
     result: dict[int, GroupedSeminar] = dict()
-    subgrouped_seminars: dict[int, GroupedSeminar] = dict()
+    subgroup_seminars: dict[int, GroupedSeminar] = dict()
     i = 0
-    first_seminar_index: int = -1
     while i < len(seminars) - 1:
         current_seminar, next_seminar = (
             seminars[i],
@@ -41,25 +42,29 @@ def group_seminars_for_numbers(seminars: list[GetScheduleByGroupResultSeminarsIt
             name = f"{current_seminar.subject.name} | {next_seminar.subject.name}"
             if current_seminar.subject.name == next_seminar.subject.name:
                 name = current_seminar.subject.name
-        if first_seminar_index == -1 or current_seminar.number < first_seminar_index:
-            first_seminar_index = current_seminar.number
-        subgrouped_seminars.update(
+        subgroup_seminars.update(
             {current_seminar.number: GroupedSeminar(name=name, time=time, cabinet=cabinet)}
         )
         i += 1
-    subgrouped_indexes = subgrouped_seminars.keys()
-    last_cheked: str = ""
-    for i in subgrouped_indexes:
-        if subgrouped_seminars.get(i + 1):
-            if subgrouped_seminars[i].name == subgrouped_seminars[i + 1].name:
-                if last_cheked == subgrouped_seminars[i]:
-                    last_cheked = ""
+
+    subgroup_indexes = subgroup_seminars.keys()
+    last_checked: str = ""
+    for i in subgroup_indexes:
+        if subgroup_seminars.get(i + 1):
+            if subgroup_seminars[i].name == subgroup_seminars[i + 1].name:
+                if last_checked == subgroup_seminars[i]:
+                    last_checked = ""
                     continue
-                last_cheked = subgrouped_seminars[i].name
-                subgrouped_seminars[
+                last_checked = subgroup_seminars[i].name
+                subgroup_seminars[
                     i
-                ].time = f"{subgrouped_seminars[i].time}, {subgrouped_seminars[i + 1].time}"
-                result.update({i // 2 + 1: subgrouped_seminars[i]})
+                ].time = f"{subgroup_seminars[i].time}, {subgroup_seminars[i + 1].time}"
+                result.update({i // 2 + 1: subgroup_seminars[i]})
             else:
-                result.update({i // 2 + 1: subgrouped_seminars[i] + subgrouped_seminars[i + 1]})
+                result.update({i // 2 + 1: subgroup_seminars[i] + subgroup_seminars[i + 1]})
+        else:
+            if result[i // 2].name == subgroup_seminars[i].name:
+                result.update({i // 2: result[i // 2] + subgroup_seminars[i]})
+            else:
+                result.update({i // 2 + 1: subgroup_seminars[i]})
     return result
