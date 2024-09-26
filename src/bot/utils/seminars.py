@@ -33,7 +33,10 @@ def group_seminars_for_numbers(seminars: list[GetScheduleByGroupResultSeminarsIt
         cabinet = None
         if current_seminar.cabinet:
             cabinet = current_seminar.cabinet.room
-        time = f"{datetime_filter(current_seminar.start_time)} - {datetime_filter(current_seminar.end_time)}"
+        time = (
+            f"{datetime_filter(current_seminar.start_time)}"
+            f" - {datetime_filter(current_seminar.end_time)}"
+        )
         if current_seminar.number == next_seminar.number:
             name = f"{current_seminar.subject.name} | {next_seminar.subject.name}"
             if current_seminar.subject.name == next_seminar.subject.name:

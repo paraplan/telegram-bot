@@ -29,6 +29,6 @@ def _get_template_env():
             autoescape=True,
         )
 
-        _get_template_env.template_env = env
+        _get_template_env.template_env = env  # type: ignore
 
-    return _get_template_env.template_env
+    return _get_template_env.template_env  # type: ignore
