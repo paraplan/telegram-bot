@@ -4,6 +4,7 @@ services:
   bot:
     build:
       dockerfile: ./src/bot/Dockerfile
+    container_name: ${PROJECT_NAME}_bot
     env_file:
       - .env
     depends_on:
@@ -16,6 +17,7 @@ services:
   daemon:
     build:
       dockerfile: ./src/daemon/Dockerfile
+    container_name: ${PROJECT_NAME}_daemon
     env_file:
       - .env
     depends_on:
@@ -24,7 +26,7 @@ services:
 
   edgedb:
     image: edgedb/edgedb
-    container_name: edgedb
+    container_name: ${PROJECT_NAME}_edgedb
     environment:
       - EDGEDB_SERVER_SECURITY=insecure_dev_mode
     volumes:
