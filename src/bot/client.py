@@ -2,20 +2,10 @@ import locale
 from zoneinfo import ZoneInfo
 
 import edgedb
-from telegrinder import (
-    API,
-    ABCMiddleware,
-    Context,
-    HTMLFormatter,
-    Message,
-    Telegrinder,
-    Token,
-    WaiterMachine,
-)
+from telegrinder import API, HTMLFormatter, Telegrinder, Token, WaiterMachine
 from telegrinder.modules import logger
 from telegrinder.types import BotCommand
 
-from src.database.generated import InsertUserResult, insert_user
 from src.env import BOT_TOKEN, EDGEDB_DSN, LOGGER_LEVEL
 
 TIMEZONE = ZoneInfo("Europe/Moscow")
@@ -31,14 +21,6 @@ formatter = HTMLFormatter
 db_client = edgedb.create_async_client(EDGEDB_DSN, tls_security="insecure")
 
 
-@bot.on.message.register_middleware()
-class UserRegisterMiddleware(ABCMiddleware[Message]):
-    async def pre(self, event: Message, ctx: Context) -> bool:
-        user = await insert_user(db_client, telegram_id=event.from_user.id)
-        ctx.update({"user": user})
-        return True
-
-
 async def update_commands():
     await api.set_my_commands(
         [
@@ -49,6 +31,3 @@ async def update_commands():
             BotCommand("monday", "Расписание на понедельник"),
         ]
     )
-
-
-MiddlewareUser = InsertUserResult

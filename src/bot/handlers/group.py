@@ -3,14 +3,15 @@ from uuid import UUID
 from telegrinder import Choice, Dispatch, Message
 from telegrinder.rules import Command
 
-from src.bot.client import MiddlewareUser, db_client, wm
+from src.bot.client import db_client, wm
+from src.bot.middlewares import MiddlewareType
 from src.database.generated import get_all_groups, update_user_group
 
 dp = Dispatch()
 
 
 @dp.message(Command("group"))
-async def handle_group(message: Message, user: MiddlewareUser):
+async def handle_group(message: Message, user: MiddlewareType):
     groups = await get_all_groups(db_client)
     choice = Choice(
         message="Выберите группу",
