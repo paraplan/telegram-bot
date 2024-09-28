@@ -217,7 +217,7 @@ async def insert_or_select_seminar(
           seminar := (
             SELECT Seminar
             FILTER
-              .cabinet = cabinet AND
+              (IF EXISTS <optional int32>$cabinet_schema_id THEN .cabinet = cabinet ELSE TRUE) AND
               .subject = subject AND
               .sub_group = <int16>$sub_group AND
               .start_time = <datetime>$start_time AND
@@ -230,7 +230,7 @@ async def insert_or_select_seminar(
             seminar
           ELSE (
             INSERT Seminar {
-              cabinet := cabinet,
+              cabinet := cabinet IF EXISTS <optional int32>$cabinet_schema_id ELSE {},
               subject := subject,
               sub_group := <int16>$sub_group,
               start_time := <datetime>$start_time,

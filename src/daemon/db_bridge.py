@@ -2,6 +2,7 @@ import datetime
 import logging
 from uuid import UUID
 
+from src.bot.utils.notification import send_notification
 from src.daemon.client import TIMEZONE, db_client
 from src.database.generated import (
     InsertOrSelectSeminarResult,
@@ -38,7 +39,8 @@ async def update_schedules(schedules: list[StudyDay]):
                 if old_schedule_data != []:
                     old_seminar_ids = [seminar.id for seminar in old_schedule_data[0].seminars]
                 new_seminar_ids = [seminar.id for seminar in new_schedule_data[0].seminars]
-                if old_seminar_ids != new_seminar_ids:
+                if sorted(old_seminar_ids) != sorted(new_seminar_ids):
+                    await send_notification(group, schedule.date, old_seminar_ids, new_seminar_ids)
                     logger.debug("Seminar data has changed for %s", group)
                 logger.debug("Finished updating %s", group)
     logger.debug("Finished updating schedules")
