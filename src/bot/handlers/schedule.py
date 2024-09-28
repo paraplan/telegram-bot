@@ -5,7 +5,7 @@ from telegrinder.rules import Command
 
 from src.bot.client import MiddlewareUser, db_client, formatter
 from src.bot.templates import render_template
-from src.bot.utils.seminars import group_seminars_for_numbers
+from src.bot.utils.seminars import convert_schedule_to_pairs
 from src.database.generated import GetAllGroupsResult, get_schedule_by_group
 
 dp = Dispatch()
@@ -45,7 +45,7 @@ async def _render_schedule_for_date(
     schedule = await get_schedule_by_group(db_client, group_id=group.id, date=date)
     if not schedule:
         return f"Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено"
-    grouped_seminars = group_seminars_for_numbers(schedule.seminars)
+    grouped_seminars = convert_schedule_to_pairs(schedule.seminars)
     return render_template(
         "schedule.j2",
         {"grouped_seminars": grouped_seminars, "date": date, "group": group},

@@ -2,69 +2,103 @@ from typing import Self
 
 from pydantic import BaseModel
 
-from src.bot.templates import datetime_filter
+from src.bot.utils.datetime import datetimes_filter
 from src.database.generated import GetScheduleByGroupResultSeminarsItem
 
 
 class GroupedSeminar(BaseModel):
     name: str
+    number: int
     time: str
     cabinet: str | None = None
-    is_half: bool = True
 
-    def __add__(self, obj: Self) -> Self:
-        self.name = f"{self.name} | {obj.name}" if self.name != obj.name else self.name
-        self.time = (
-            f"{self.time}, {obj.time}" if self.time.split(", ")[-1] != obj.time else self.time
-        )
-        self.cabinet = f"{self.cabinet} | {obj.cabinet}"
+    def __add__(self, next: Self) -> Self:
+        if self.number == next.number:
+            if self.name == next.name:
+                self.cabinet = f"{self.cabinet} | {next.cabinet}"
+                return self
         return self
 
 
-def group_seminars_for_numbers(seminars: list[GetScheduleByGroupResultSeminarsItem]):
-    result: dict[int, GroupedSeminar] = dict()
-    subgroup_seminars: dict[int, GroupedSeminar] = dict()
-    i = 0
-    while i < len(seminars) - 1:
-        current_seminar, next_seminar = (
-            seminars[i],
-            seminars[i + 1],
-        )
-        name = current_seminar.subject.name
-        cabinet = None
-        if current_seminar.cabinet:
-            cabinet = current_seminar.cabinet.room
-        time = (
-            f"{datetime_filter(current_seminar.start_time)}"
-            f" - {datetime_filter(current_seminar.end_time)}"
-        )
-        if current_seminar.number == next_seminar.number:
-            name = f"{current_seminar.subject.name} | {next_seminar.subject.name}"
-            if current_seminar.subject.name == next_seminar.subject.name:
-                name = current_seminar.subject.name
-        subgroup_seminars.update(
-            {current_seminar.number: GroupedSeminar(name=name, time=time, cabinet=cabinet)}
-        )
-        i += 1
+SeminarsType = dict[int, list[GroupedSeminar]]
 
-    subgroup_indexes = subgroup_seminars.keys()
-    last_checked: str = ""
-    for i in subgroup_indexes:
-        if subgroup_seminars.get(i + 1):
-            if subgroup_seminars[i].name == subgroup_seminars[i + 1].name:
-                if last_checked == subgroup_seminars[i]:
-                    last_checked = ""
-                    continue
-                last_checked = subgroup_seminars[i].name
-                subgroup_seminars[
-                    i
-                ].time = f"{subgroup_seminars[i].time}, {subgroup_seminars[i + 1].time}"
-                result.update({i // 2 + 1: subgroup_seminars[i]})
-            else:
-                result.update({i // 2 + 1: subgroup_seminars[i] + subgroup_seminars[i + 1]})
-        else:
-            if result[i // 2].name == subgroup_seminars[i].name:
-                result.update({i // 2: result[i // 2] + subgroup_seminars[i]})
-            else:
-                result.update({i // 2 + 1: subgroup_seminars[i]})
+
+def convert_schedule_to_seminars(
+    schedule: list[GetScheduleByGroupResultSeminarsItem],
+) -> SeminarsType:
+    seminars: SeminarsType = dict()
+    for seminar in schedule:
+        item = GroupedSeminar(
+            name=seminar.subject.name,
+            number=seminar.number,
+            time=datetimes_filter((seminar.start_time, seminar.end_time)),
+            cabinet=seminar.cabinet.room if seminar.cabinet else None,
+        )
+        if not seminars.get(seminar.number):
+            seminars[seminar.number] = []
+        seminars[seminar.number].append(item)
+    return seminars
+
+
+def _group_seminar(items: list[GroupedSeminar]) -> GroupedSeminar:
+    result = items[0]
+    for item in items:
+        if item == result:
+            continue
+        result = result + item
     return result
+
+
+def group_seminars(seminars: SeminarsType) -> dict[int, GroupedSeminar]:
+    grouped_seminars: dict[int, GroupedSeminar] = dict()
+    for index, item in seminars.items():
+        grouped_seminars[index] = _group_seminar(item)
+    return grouped_seminars
+
+
+class PairModel(BaseModel):
+    name: str
+    time: str
+    cabinet: str | None = None
+
+
+def _process_cabinets(cabinets: tuple[str | None, str | None]) -> str:
+    if (
+        cabinets[0]
+        and cabinets[1]
+        and set(cabinets[0].split(" | ")) == set(cabinets[1].split(" | "))
+    ):
+        return cabinets[0]
+    if cabinets[0] == cabinets[1]:
+        return cabinets[0] or "??"
+    result = [cabinets[0] or "??", cabinets[1] or "??"]
+    return " | ".join(result)
+
+
+def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar]):
+    pairs: dict[int, PairModel] = dict()
+    seminars_keys = list(seminars.keys())
+    i: int = seminars_keys[0]
+    while i <= seminars_keys[-2]:
+        seminar, next_seminar = seminars[i], seminars[i + 1]
+
+        if seminar.name == next_seminar.name:
+            name = seminar.name
+        else:
+            name = f"{seminar.name} | {next_seminar.name}"
+        cabinet = _process_cabinets((seminar.cabinet, next_seminar.cabinet))
+        time = f"{seminar.time}, {next_seminar.time}"
+        pair = PairModel(name=name, cabinet=cabinet, time=time)
+        pairs[seminar.number // 2 + 1] = pair
+
+        if i == seminars_keys[-2]:
+            break
+        i += 2
+    return pairs
+
+
+def convert_schedule_to_pairs(schedule: list[GetScheduleByGroupResultSeminarsItem]) -> dict:
+    seminars = convert_schedule_to_seminars(schedule)
+    grouped_seminars = group_seminars(seminars)
+    pairs = convert_seminars_to_pairs(grouped_seminars)
+    return pairs
