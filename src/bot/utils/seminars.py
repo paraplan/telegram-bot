@@ -91,9 +91,11 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar]):
         pair = PairModel(name=name, cabinet=cabinet, time=time)
         pairs[seminar.number // 2 + 1] = pair
 
-        if i == seminars_keys[-2]:
-            break
         i += 2
+    if seminars.get(i):
+        pairs[i // 2 + 1] = PairModel(
+            name=seminars[i].name, time=seminars[i].time, cabinet=seminars[i].cabinet or "??"
+        )
     return pairs
 
 
