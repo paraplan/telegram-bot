@@ -25,6 +25,18 @@ async def handle_today(message: Message, user: MiddlewareUser):
     await message.answer(schedule, parse_mode=formatter.PARSE_MODE)
 
 
+@dp.message(Command("monday"))
+async def handle_monday(message: Message, user: MiddlewareUser):
+    message_weekday = message.date.weekday()
+    days_ahead = 7 - message_weekday
+    if days_ahead == 7:
+        days_ahead = 0
+    schedule = await _render_schedule_for_date(
+        message.date + datetime.timedelta(days=days_ahead), user.group
+    )
+    await message.answer(schedule, parse_mode=formatter.PARSE_MODE)
+
+
 async def _render_schedule_for_date(
     date: datetime.date, group: GetAllGroupsResult | None = None
 ) -> str:
@@ -32,7 +44,7 @@ async def _render_schedule_for_date(
         return "Вы не выбрали группу. Чтобы сделать это, введите /group"
     schedule = await get_schedule_by_group(db_client, group_id=group.id, date=date)
     if not schedule:
-        return f"Расписания на {date.strftime('%d.%m.%Y')} не найдено"
+        return f"Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено"
     grouped_seminars = group_seminars_for_numbers(schedule.seminars)
     return render_template(
         "schedule.j2",
