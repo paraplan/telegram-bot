@@ -1,1 +1,1 @@
-select `Group` { * };
+select `Group` { * } order by .name;

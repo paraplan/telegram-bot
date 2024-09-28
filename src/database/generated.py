@@ -117,7 +117,7 @@ async def get_all_groups(
 ) -> list[GetAllGroupsResult]:
     return await executor.query(
         """\
-        select `Group` { * };\
+        select `Group` { * } order by .name;\
         """,
     )
 
