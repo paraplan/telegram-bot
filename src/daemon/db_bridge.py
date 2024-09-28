@@ -69,6 +69,7 @@ async def get_seminars_for_group(
     seminars_for_day: list[InsertOrSelectSeminarResult] = []
     for hours_index, hours_data in group.hours.items():
         for sub_group_index, sub_group_data in hours_data.items():
+            cabinet = None
             if sub_group_data.room:
                 cabinet = await insert_cabinet(
                     db_client,
@@ -76,20 +77,20 @@ async def get_seminars_for_group(
                     room=sub_group_data.room.name,
                     schema_id=sub_group_data.room.id,
                 )
-                subject = await insert_subject(db_client, name=sub_group_data.occupation)
-                seminars_for_day.append(
-                    (
-                        await insert_or_select_seminar(
-                            db_client,
-                            cabinet_schema_id=cabinet.schema_id,
-                            subject_name=subject.name,
-                            sub_group=sub_group_index,
-                            start_time=bells_dict[hours_index][0],
-                            end_time=bells_dict[hours_index][1],
-                            number=hours_index,
-                        )
-                    )[0]
-                )
+            subject = await insert_subject(db_client, name=sub_group_data.occupation)
+            seminars_for_day.append(
+                (
+                    await insert_or_select_seminar(
+                        db_client,
+                        cabinet_schema_id=cabinet.schema_id if cabinet else None,
+                        subject_name=subject.name,
+                        sub_group=sub_group_index,
+                        start_time=bells_dict[hours_index][0],
+                        end_time=bells_dict[hours_index][1],
+                        number=hours_index,
+                    )
+                )[0]
+            )
     return seminars_for_day
 
 
