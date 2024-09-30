@@ -4,7 +4,7 @@ from telegrinder import Choice, Dispatch, Message
 from telegrinder.rules import Command
 
 from src.bot.client import db_client, wm
-from src.bot.middlewares import MiddlewareType
+from src.bot.utils.middlewares import MiddlewareType
 from src.database.generated import get_all_groups, update_user_group
 
 dp = Dispatch()

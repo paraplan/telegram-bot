@@ -6,11 +6,11 @@ from src.bot.utils.notification import send_notification
 from src.daemon.client import TIMEZONE, db_client
 from src.database.generated import (
     InsertOrSelectSeminarResult,
+    get_seminar_ids_by_date,
     insert_cabinet,
     insert_group,
     insert_or_select_seminar,
     insert_subject,
-    select_schedule,
     update_or_insert_schedule,
 )
 from src.schedule_parser.group import Group
@@ -32,37 +32,31 @@ async def update_schedules(schedules: list[StudyDay]):
                 )
                 if not seminars_for_group:
                     continue
-                old_schedule_data, new_schedule_data = await update_seminars_data(
-                    schedule.date, group.id, seminars_for_group
-                )
-                old_seminar_ids = []
-                if old_schedule_data != []:
-                    old_seminar_ids = [seminar.id for seminar in old_schedule_data[0].seminars]
-                new_seminar_ids = [seminar.id for seminar in new_schedule_data[0].seminars]
-                if sorted(old_seminar_ids) != sorted(new_seminar_ids):
+                old_seminar_ids = await get_seminar_ids(group.id, schedule.date)
+                await update_seminars_data(schedule.date, group.id, seminars_for_group)
+                new_seminar_ids = await get_seminar_ids(group.id, schedule.date)
+                if old_seminar_ids != new_seminar_ids:
                     await send_notification(group, schedule.date, old_seminar_ids, new_seminar_ids)
                     logger.debug("Seminar data has changed for %s", group)
                 logger.debug("Finished updating %s", group)
     logger.debug("Finished updating schedules")
 
 
+async def get_seminar_ids(group_id: UUID, date: datetime.date) -> list[UUID]:
+    seminars_data = await get_seminar_ids_by_date(db_client, group_id=group_id, date=date)
+    return sorted([seminar.id for seminar in seminars_data[0].seminars])
+
+
 async def update_seminars_data(
     date: datetime.date, group_id: UUID, seminars_for_group: list[InsertOrSelectSeminarResult]
 ):
     seminar_ids = [seminar.id for seminar in seminars_for_group]
-    old_schedule_data = await select_schedule(
+    await update_or_insert_schedule(
         db_client,
         group_id=group_id,
         seminar_ids=seminar_ids,
         date=date,
     )
-    new_schedule_data = await update_or_insert_schedule(
-        db_client,
-        group_id=group_id,
-        seminar_ids=seminar_ids,
-        date=date,
-    )
-    return old_schedule_data, new_schedule_data
 
 
 async def get_seminars_for_group(

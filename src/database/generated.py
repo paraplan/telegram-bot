@@ -2,6 +2,7 @@
 #     'src/database/queries/groups/get_all_groups.edgeql'
 #     'src/database/queries/groups/get_group_students.edgeql'
 #     'src/database/queries/schedule/get_schedule_by_group.edgeql'
+#     'src/database/queries/seminars/get_seminar_ids_by_date.edgeql'
 #     'src/database/queries/cabinets/insert_cabinet.edgeql'
 #     'src/database/queries/groups/insert_group.edgeql'
 #     'src/database/queries/seminars/insert_or_select_seminar.edgeql'
@@ -86,6 +87,17 @@ class GetScheduleByGroupResultSeminarsItemSubject(NoPydanticValidation):
 
 
 @dataclasses.dataclass
+class GetSeminarIdsByDateResult(NoPydanticValidation):
+    id: uuid.UUID
+    seminars: list[GetSeminarIdsByDateResultSeminarsItem]
+
+
+@dataclasses.dataclass
+class GetSeminarIdsByDateResultSeminarsItem(NoPydanticValidation):
+    id: uuid.UUID
+
+
+@dataclasses.dataclass
 class InsertOrSelectSeminarResult(NoPydanticValidation):
     id: uuid.UUID
     end_time: datetime.datetime
@@ -119,6 +131,11 @@ class SelectScheduleResultSeminarsItem(NoPydanticValidation):
     number: int
     start_time: datetime.datetime
     sub_group: int
+
+
+@dataclasses.dataclass
+class UpdateOrInsertScheduleResult(NoPydanticValidation):
+    id: uuid.UUID
 
 
 @dataclasses.dataclass
@@ -168,6 +185,25 @@ async def get_schedule_by_group(
           .date = <cal::local_date>$date
         )
         limit 1;\
+        """,
+        group_id=group_id,
+        date=date,
+    )
+
+
+async def get_seminar_ids_by_date(
+    executor: edgedb.AsyncIOExecutor,
+    *,
+    group_id: uuid.UUID,
+    date: datetime.date,
+) -> list[GetSeminarIdsByDateResult]:
+    return await executor.query(
+        """\
+        select SeminarSchedule {
+          seminars: { id } order by .id
+        }
+        filter .`group`.id = <uuid>$group_id
+        and .date = <cal::local_date>$date;\
         """,
         group_id=group_id,
         date=date,
@@ -355,7 +391,7 @@ async def update_or_insert_schedule(
     group_id: uuid.UUID,
     seminar_ids: list[uuid.UUID],
     date: datetime.date,
-) -> list[SelectScheduleResult]:
+) -> list[UpdateOrInsertScheduleResult]:
     return await executor.query(
         """\
         WITH
@@ -390,7 +426,7 @@ async def update_or_insert_schedule(
               date := <cal::local_date>$date,
             }
           )
-        ) { ** };\
+        ) { id };\
         """,
         group_id=group_id,
         seminar_ids=seminar_ids,

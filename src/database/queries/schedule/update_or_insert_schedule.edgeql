@@ -30,4 +30,4 @@ SELECT (
       date := <cal::local_date>$date,
     }
   )
-) { ** };
+) { id };

@@ -4,8 +4,8 @@ from telegrinder import Dispatch, Message
 from telegrinder.rules import Command
 
 from src.bot.client import db_client, formatter
-from src.bot.middlewares import MiddlewareType
 from src.bot.templates import render_template
+from src.bot.utils.middlewares import MiddlewareType
 from src.bot.utils.seminars import convert_schedule_to_pairs
 from src.database.generated import GetAllGroupsResult, get_schedule_by_group
 
