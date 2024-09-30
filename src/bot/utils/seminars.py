@@ -10,7 +10,7 @@ class GroupedSeminar(BaseModel):
     name: str
     number: int
     time: str
-    cabinet: str | None = None
+    cabinet: str | None
 
     def __add__(self, next: Self) -> Self:
         if self.number == next.number:
@@ -59,10 +59,10 @@ def group_seminars(seminars: SeminarsType) -> dict[int, GroupedSeminar]:
 class PairModel(BaseModel):
     name: str
     time: str
-    cabinet: str | None = None
+    cabinet: str | None
 
 
-def _process_cabinets(cabinets: tuple[str | None, str | None]) -> str:
+def _process_cabinets(cabinets: tuple[str | None, str | None]) -> str | None:
     if (
         cabinets[0]
         and cabinets[1]
@@ -70,8 +70,8 @@ def _process_cabinets(cabinets: tuple[str | None, str | None]) -> str:
     ):
         return cabinets[0]
     if cabinets[0] == cabinets[1]:
-        return cabinets[0] or "??"
-    result = [cabinets[0] or "??", cabinets[1] or "??"]
+        return cabinets[0]
+    result = [cabinets[0] or "None", cabinets[1]]
     return " | ".join(result)
 
 
@@ -94,7 +94,7 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar]):
         i += 2
     if seminars.get(i):
         pairs[i // 2 + 1] = PairModel(
-            name=seminars[i].name, time=seminars[i].time, cabinet=seminars[i].cabinet or "??"
+            name=seminars[i].name, time=seminars[i].time, cabinet=seminars[i].cabinet
         )
     return pairs
 

@@ -196,14 +196,15 @@ async def get_seminar_ids_by_date(
     *,
     group_id: uuid.UUID,
     date: datetime.date,
-) -> list[GetSeminarIdsByDateResult]:
-    return await executor.query(
+) -> GetSeminarIdsByDateResult | None:
+    return await executor.query_single(
         """\
         select SeminarSchedule {
           seminars: { id } order by .id
         }
         filter .`group`.id = <uuid>$group_id
-        and .date = <cal::local_date>$date;\
+        and .date = <cal::local_date>$date
+        limit 1;\
         """,
         group_id=group_id,
         date=date,

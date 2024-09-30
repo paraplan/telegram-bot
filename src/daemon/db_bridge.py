@@ -35,16 +35,18 @@ async def update_schedules(schedules: list[StudyDay]):
                 old_seminar_ids = await get_seminar_ids(group.id, schedule.date)
                 await update_seminars_data(schedule.date, group.id, seminars_for_group)
                 new_seminar_ids = await get_seminar_ids(group.id, schedule.date)
-                if old_seminar_ids != new_seminar_ids:
+                if old_seminar_ids is None or old_seminar_ids != new_seminar_ids:
                     await send_notification(group, schedule.date, old_seminar_ids, new_seminar_ids)
                     logger.debug("Seminar data has changed for %s", group)
                 logger.debug("Finished updating %s", group)
     logger.debug("Finished updating schedules")
 
 
-async def get_seminar_ids(group_id: UUID, date: datetime.date) -> list[UUID]:
+async def get_seminar_ids(group_id: UUID, date: datetime.date) -> list[UUID] | None:
     seminars_data = await get_seminar_ids_by_date(db_client, group_id=group_id, date=date)
-    return sorted([seminar.id for seminar in seminars_data[0].seminars])
+    if not seminars_data:
+        return None
+    return sorted([seminar.id for seminar in seminars_data.seminars])
 
 
 async def update_seminars_data(
