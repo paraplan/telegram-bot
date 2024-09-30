@@ -81,6 +81,13 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar]):
     i: int = seminars_keys[0]
     while i <= seminars_keys[-2]:
         seminar, next_seminar = seminars[i], seminars[i + 1]
+        if seminar.number % 2 == 0:
+            pair = PairModel(
+                name="None | " + seminar.name, cabinet=seminar.cabinet, time=seminar.time
+            )
+            pairs[seminar.number // 2] = pair
+            i += 1
+            continue
 
         if seminar.name == next_seminar.name:
             name = seminar.name
