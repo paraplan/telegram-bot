@@ -2,6 +2,7 @@ import logging
 from datetime import date
 
 from src.bot.client import api, db_client
+from src.bot.utils.datetime import datetime_filter
 from src.database.generated import GetAllGroupsResult, get_group_students
 
 logger = logging.getLogger(__name__)
@@ -13,5 +14,6 @@ async def send_notification(group: GetAllGroupsResult, date: date, old_seminars,
         logger.debug("send notification to student: %s", student)
         await api.send_message(
             chat_id=student.telegram_id,
-            text=f"Обновлено расписание на {date} для группы {group.name}",
+            text=f"🔄 Обновлено расписание {group.name} на {date:<b>%A</b>, %d %B}",
+            parse_mode="HTML",
         )
