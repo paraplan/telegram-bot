@@ -2,7 +2,6 @@ import logging
 from datetime import date
 
 from src.bot.client import api, db_client
-from src.bot.utils.datetime import datetime_filter
 from src.database.generated import GetAllGroupsResult, get_group_students
 
 logger = logging.getLogger(__name__)
