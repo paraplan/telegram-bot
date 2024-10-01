@@ -1,6 +1,8 @@
 import logging
 from datetime import date
 
+from telegrinder.types import ReplyKeyboardRemove
+
 from src.bot.client import api, db_client
 from src.database.generated import GetAllGroupsResult, get_group_students
 
@@ -15,4 +17,5 @@ async def send_notification(group: GetAllGroupsResult, date: date, old_seminars,
             chat_id=student.telegram_id,
             text=f"🔄 Обновлено расписание {group.name} на {date:<b>%A</b>, %d %B}",
             parse_mode="HTML",
+            reply_markup=ReplyKeyboardRemove(remove_keyboard=True),
         )
