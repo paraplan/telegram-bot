@@ -1,4 +1,9 @@
-📚 {{ date.strftime('%A, %d %B') }} — {{ group.full_name }}
+📚 {{ date.strftime('%A, %d %B') }}
+<br>
+👥 {{ group.full_name }}
+{% if sub_group != 0 %}
+({{ sub_group }} подгруппа)
+{% endif %}
 <br>
 <br>
 {% for index, seminar in grouped_seminars.items() %}

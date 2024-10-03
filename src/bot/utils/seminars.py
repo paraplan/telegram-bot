@@ -10,13 +10,24 @@ class GroupedSeminar(BaseModel):
     name: str
     number: int
     time: str
+    sub_group: int
     cabinet: str | None
 
-    def __add__(self, next: Self) -> Self:
-        if self.number == next.number:
-            if self.name == next.name:
-                self.cabinet = f"{self.cabinet} | {next.cabinet}"
+    def merge(self, second: Self, sub_group: int = 0) -> Self:
+        if sub_group != 0:
+            if self.sub_group != sub_group and second.sub_group == sub_group:
+                return second
+            else:
                 return self
+        if self.cabinet == second.cabinet:
+            self.cabinet = self.cabinet
+        else:
+            self.cabinet = f"{self.cabinet} | {second.cabinet}"
+
+        if self.name == second.name:
+            self.name = self.name
+        else:
+            self.name = f"{self.name} | {second.name}"
         return self
 
 
@@ -32,6 +43,7 @@ def convert_schedule_to_seminars(
             name=seminar.subject.name,
             number=seminar.number,
             time=datetimes_filter((seminar.start_time, seminar.end_time)),
+            sub_group=seminar.sub_group,
             cabinet=seminar.cabinet.room if seminar.cabinet else None,
         )
         if not seminars.get(seminar.number):
@@ -40,20 +52,30 @@ def convert_schedule_to_seminars(
     return seminars
 
 
-def _group_seminar(items: list[GroupedSeminar]) -> GroupedSeminar:
+def _group_seminar(items: list[GroupedSeminar], sub_group: int = 0) -> tuple[GroupedSeminar, bool]:
     result = items[0]
+    is_schedule_subgrouped = False
+    if len(items) > 2:
+        sub_group = 0
+        is_schedule_subgrouped = True
     for item in items:
         if item == result:
             continue
-        result = result + item
-    return result
+        result = result.merge(item, sub_group)
+    return result, is_schedule_subgrouped
 
 
-def group_seminars(seminars: SeminarsType) -> dict[int, GroupedSeminar]:
+def group_seminars(
+    seminars: SeminarsType, sub_group: int = 0
+) -> tuple[dict[int, GroupedSeminar], bool]:
     grouped_seminars: dict[int, GroupedSeminar] = dict()
+    is_schedule_subgrouped = False
     for index, item in seminars.items():
-        grouped_seminars[index] = _group_seminar(item)
-    return grouped_seminars
+        result = _group_seminar(item, sub_group)
+        if result[1]:
+            is_schedule_subgrouped = True
+        grouped_seminars[index] = result[0]
+    return grouped_seminars, is_schedule_subgrouped
 
 
 class PairModel(BaseModel):
@@ -75,12 +97,21 @@ def _process_cabinets(cabinets: tuple[str | None, str | None]) -> str | None:
     return " | ".join(result)
 
 
-def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar]):
+def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: int = 1):
     pairs: dict[int, PairModel] = dict()
     seminars_keys = list(seminars.keys())
+    is_schedule_subgrouped = False if sub_group != 2 else True
     i: int = seminars_keys[0]
     while i <= seminars_keys[-2]:
         seminar, next_seminar = seminars[i], seminars[i + 1]
+        if (
+            sub_group == 1
+            and seminar.sub_group != sub_group
+            and next_seminar.sub_group != sub_group
+        ):
+            i += 2
+            is_schedule_subgrouped = True
+            continue
         if seminar.number % 2 == 0:
             pair = PairModel(
                 name="None | " + seminar.name, cabinet=seminar.cabinet, time=seminar.time
@@ -103,11 +134,13 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar]):
         pairs[i // 2 + 1] = PairModel(
             name=seminars[i].name, time=seminars[i].time, cabinet=seminars[i].cabinet
         )
-    return pairs
+    return pairs, is_schedule_subgrouped
 
 
-def convert_schedule_to_pairs(schedule: list[GetScheduleByGroupResultSeminarsItem]) -> dict:
+def convert_schedule_to_pairs(
+    schedule: list[GetScheduleByGroupResultSeminarsItem], sub_group: int = 0
+) -> tuple[dict, bool]:
     seminars = convert_schedule_to_seminars(schedule)
-    grouped_seminars = group_seminars(seminars)
-    pairs = convert_seminars_to_pairs(grouped_seminars)
-    return pairs
+    grouped_seminars = group_seminars(seminars, sub_group)
+    pairs = convert_seminars_to_pairs(grouped_seminars[0], sub_group)
+    return pairs[0], grouped_seminars[1] or pairs[1]
