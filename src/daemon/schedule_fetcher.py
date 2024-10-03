@@ -24,7 +24,7 @@ async def get_updated_schedules() -> list[StudyDay]:
 
 def get_dates_for_fetch() -> list[datetime.date]:
     today = datetime.date.today()
-    dates: list[datetime.date] = [today]
+    dates: list[datetime.date] = []
     if today.weekday() == 4:  # Friday
         dates += [today + datetime.timedelta(days=1), today + datetime.timedelta(days=3)]
     elif today.weekday() == 5:  # Saturday
