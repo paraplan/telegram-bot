@@ -58,7 +58,7 @@ async def handle_monday(message: Message, user: MiddlewareType):
 
 
 async def _render_schedule_for_date(
-    date: datetime.date, group: GetAllGroupsResult | None = None, subgroup: int = 1
+    date: datetime.date, group: GetAllGroupsResult | None = None, sub_group: int = 1
 ) -> tuple[str, InlineKeyboardMarkup]:
     kb = InlineKeyboard()
     if not group:
@@ -69,11 +69,19 @@ async def _render_schedule_for_date(
             f"Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено",
             kb.get_markup(),
         )
-    grouped_seminars = convert_schedule_to_pairs(schedule.seminars)
-    kb = _get_subgroups_keyboard(group.name, date, subgroup)
+    grouped_seminars, is_schedule_subgrouped = convert_schedule_to_pairs(
+        schedule.seminars, sub_group
+    )
+    if is_schedule_subgrouped:
+        kb = _get_subgroups_keyboard(group.name, date, sub_group)
     return render_template(
         "schedule.j2",
-        {"grouped_seminars": grouped_seminars, "date": date, "group": group},
+        {
+            "grouped_seminars": grouped_seminars,
+            "date": date,
+            "group": group,
+            "sub_group": sub_group if is_schedule_subgrouped else 0,
+        },
     ), kb.get_markup()
 
 
