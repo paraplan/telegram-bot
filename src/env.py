@@ -17,3 +17,4 @@ DAEMON_INTERVAL: Final[int] = int(os.getenv("DAEMON_INTERVAL", 600))
 ValidLogLevels = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 
 LOGGER_LEVEL: Final[ValidLogLevels] = os.getenv("LOGGER_LEVEL", "INFO")  # type: ignore
+MODE: Final[Literal["RELEASE", "DEV", "STAGE"]] = os.getenv("MODE", "RELEASE")  # type: ignore

@@ -13,6 +13,7 @@ from src.database.generated import (
     insert_subject,
     update_or_insert_schedule,
 )
+from src.env import MODE
 from src.schedule_parser.group import Group
 from src.schedule_parser.study_day import StudyDay
 
@@ -36,7 +37,10 @@ async def update_schedules(schedules: list[StudyDay]):
                 await update_seminars_data(schedule.date, group.id, seminars_for_group)
                 new_seminar_ids = await get_seminar_ids(group.id, schedule.date)
                 if old_seminar_ids is None or old_seminar_ids != new_seminar_ids:
-                    await send_notification(group, schedule.date, old_seminar_ids, new_seminar_ids)
+                    if MODE != "STAGE":
+                        await send_notification(
+                            group, schedule.date, old_seminar_ids, new_seminar_ids
+                        )
                     logger.debug("Seminar data has changed for %s", group)
                 logger.debug("Finished updating %s", group)
     logger.debug("Finished updating schedules")
