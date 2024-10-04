@@ -5,7 +5,7 @@ from telegrinder.rules import Command
 
 from src.bot.client import db_client, wm
 from src.bot.utils.middlewares import MiddlewareType
-from src.database.generated import get_all_groups, update_user_group
+from src.database.generated import get_all_groups, update_user_group, update_user_subgroup
 
 dp = Dispatch()
 
@@ -32,4 +32,8 @@ async def handle_group(message: Message, user: MiddlewareType):
     chosen, choice_id = await choice.wait(message.ctx_api, dp.callback_query)
 
     await update_user_group(db_client, group_id=UUID(chosen), telegram_id=message.from_user.id)
-    await message.edit(text="Группа успешно обновлена", message_id=choice_id)
+    await update_user_subgroup(db_client, sub_group=1, telegram_id=message.from_user.id)
+    await message.edit(
+        text="👥 Группа изменена\nЧтобы изменить подгруппу, используйте /subgroup",
+        message_id=choice_id,
+    )

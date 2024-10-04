@@ -12,6 +12,7 @@ module default {
 			default := datetime_of_transaction();
 			readonly := true;
 		};
+	    required default_subgroup: int16;
 	}
 
 	type Subject {

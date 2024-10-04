@@ -12,6 +12,7 @@
 #     'src/database/queries/schedule/select_schedule.edgeql'
 #     'src/database/queries/schedule/update_or_insert_schedule.edgeql'
 #     'src/database/queries/users/update_user_group.edgeql'
+#     'src/database/queries/users/update_user_subgroup.edgeql'
 # WITH:
 #     $ edgedb-py --dir src/database/queries --target async --file src/database/generated.py
 
@@ -114,6 +115,7 @@ class InsertUserResult(NoPydanticValidation):
     id: uuid.UUID
     created_at: datetime.datetime
     telegram_id: int
+    default_subgroup: int
     group: GetAllGroupsResult | None
 
 
@@ -356,7 +358,8 @@ async def insert_user(
         """\
         select (
           insert User {
-            telegram_id := <int64>$telegram_id
+            telegram_id := <int64>$telegram_id,
+            default_subgroup := 1,
           } unless conflict on .telegram_id else User
         ) { ** };\
         """,
@@ -464,5 +467,24 @@ async def update_user_group(
         };\
         """,
         group_id=group_id,
+        telegram_id=telegram_id,
+    )
+
+
+async def update_user_subgroup(
+    executor: edgedb.AsyncIOExecutor,
+    *,
+    sub_group: int,
+    telegram_id: int,
+) -> UpdateUserGroupResult | None:
+    return await executor.query_single(
+        """\
+        update User
+        filter .telegram_id = <int64>$telegram_id
+        set {
+          default_subgroup := <int16>$sub_group
+        };\
+        """,
+        sub_group=sub_group,
         telegram_id=telegram_id,
     )

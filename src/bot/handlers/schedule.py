@@ -33,7 +33,7 @@ async def handle_subgroup(callback: CallbackQuery, data: ScheduleCallbackData):
 @dp.message(Command("tomorrow"))
 async def handle_tomorrow(message: Message, user: MiddlewareType):
     text, keyboard = await _render_schedule_for_date(
-        message.date + datetime.timedelta(days=1), user.group
+        message.date + datetime.timedelta(days=1), user.group, user.default_subgroup
     )
     resp = await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)
     resp.unwrap()
@@ -41,7 +41,9 @@ async def handle_tomorrow(message: Message, user: MiddlewareType):
 
 @dp.message(Command("today"))
 async def handle_today(message: Message, user: MiddlewareType):
-    text, keyboard = await _render_schedule_for_date(message.date, user.group)
+    text, keyboard = await _render_schedule_for_date(
+        message.date, user.group, user.default_subgroup
+    )
     await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)
 
 
@@ -52,7 +54,7 @@ async def handle_monday(message: Message, user: MiddlewareType):
     if days_ahead == 7:
         days_ahead = 0
     text, keyboard = await _render_schedule_for_date(
-        message.date + datetime.timedelta(days=days_ahead), user.group
+        message.date + datetime.timedelta(days=days_ahead), user.group, user.default_subgroup
     )
     await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)
 
