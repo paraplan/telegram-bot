@@ -17,17 +17,6 @@ class GroupedSeminar(BaseModel):
         if sub_group != 0:
             if self.sub_group != sub_group and second.sub_group == sub_group:
                 return second
-            else:
-                return self
-        if self.cabinet == second.cabinet:
-            self.cabinet = self.cabinet
-        else:
-            self.cabinet = f"{self.cabinet} | {second.cabinet}"
-
-        if self.name == second.name:
-            self.name = self.name
-        else:
-            self.name = f"{self.name} | {second.name}"
         return self
 
 
@@ -55,7 +44,10 @@ def convert_schedule_to_seminars(
 def _group_seminar(items: list[GroupedSeminar], sub_group: int = 0) -> tuple[GroupedSeminar, bool]:
     result = items[0]
     is_schedule_subgrouped = False
-    if len(items) > 2:
+    items_subgroups = set((item.sub_group for item in items if item.name != "Физкультура"))
+    if len(items_subgroups) > 1:
+        is_schedule_subgrouped = True
+    if len(items_subgroups) > 2:
         sub_group = 0
         is_schedule_subgrouped = True
     for item in items:
