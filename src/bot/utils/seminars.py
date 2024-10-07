@@ -17,6 +17,9 @@ class GroupedSeminar(BaseModel):
         if sub_group != 0:
             if self.sub_group != sub_group and second.sub_group == sub_group:
                 return second
+        else:
+            if self.name == second.name:
+                self.cabinet = _process_cabinets((self.cabinet, second.cabinet), separator=", ")
         return self
 
 
@@ -76,17 +79,19 @@ class PairModel(BaseModel):
     cabinet: str | None
 
 
-def _process_cabinets(cabinets: tuple[str | None, str | None]) -> str | None:
+def _process_cabinets(
+    cabinets: tuple[str | None, str | None], separator: str = " | "
+) -> str | None:
     if (
         cabinets[0]
         and cabinets[1]
-        and set(cabinets[0].split(" | ")) == set(cabinets[1].split(" | "))
+        and set(cabinets[0].split(separator)) == set(cabinets[1].split(separator))
     ):
         return cabinets[0]
     if cabinets[0] == cabinets[1]:
         return cabinets[0]
     result = [cabinets[0] or "None", cabinets[1]]
-    return " | ".join(result)
+    return separator.join(result)
 
 
 def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: int = 1):
