@@ -122,7 +122,12 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: in
         else:
             name = f"{seminar.name} | {next_seminar.name}"
         cabinet = _process_cabinets((seminar.cabinet, next_seminar.cabinet))
-        time = f"{seminar.time}, {next_seminar.time}"
+        seminar_times = seminar.time.split(" - ")
+        next_seminar_time = next_seminar.time.split(" - ")
+        if seminar_times[1] == next_seminar_time[0]:
+            time = f"{seminar_times[0]} - {next_seminar_time[1]}"
+        else:
+            time = f"{seminar.time}, {next_seminar.time}"
         pair = PairModel(name=name, cabinet=cabinet, time=time)
         pairs[seminar.number // 2 + 1] = pair
 
