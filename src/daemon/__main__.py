@@ -23,7 +23,7 @@ async def sleep_until():
     if MODE != "RELEASE":
         return
     now = datetime.datetime.now()
-    target_time = now.replace(hour=16, minute=0, second=0)
+    target_time = now.replace(hour=15, minute=0, second=0)
     if now.hour >= 21:
         target_time = target_time + datetime.timedelta(days=1)
     delta = target_time - now
