@@ -97,7 +97,7 @@ def _process_cabinets(
 def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: int = 1):
     pairs: dict[int, PairModel] = dict()
     seminars_keys = list(seminars.keys())
-    is_schedule_subgrouped = False if sub_group != 2 else True
+    is_schedule_subgrouped = False if sub_group != 0 else True
     i: int = seminars_keys[0]
     while i <= seminars_keys[-2]:
         seminar, next_seminar = seminars[i], seminars[i + 1]
