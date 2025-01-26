@@ -1,0 +1,77 @@
+erDiagram
+    user ||--|| user_settings : ""
+    group ||--o{ user : ""
+    group ||--o{ schedule : ""
+    schedule ||--o{ lesson : ""
+    teacher ||--o{ lesson : ""
+    room ||--o{ lesson : ""
+    subject ||--o{ lesson : ""
+    time_slot ||--o{ lesson : ""
+    day_type ||--o{ time_slot : ""
+
+    user {
+        int id PK
+        int group_id FK
+        datetime created_at
+    }
+
+    user_settings {
+        int id PK
+        int user_id FK
+        smallint subgroup "default 1"
+        boolean is_notify "default true"
+        boolean is_notify_session "default true"
+        boolean is_notify_practice "default true"
+    }
+
+    group {
+        int id PK
+        string name
+        string full_name
+        int course
+    }
+
+    schedule {
+        int id PK
+        int group_id FK
+        date date
+    }
+
+    lesson {
+        int id PK
+        int schedule_id FK "unique together"
+        int subject_id FK
+        int teacher_id FK "nullable"
+        int room_id FK "nullable"
+        int time_slot_id FK "unique together"
+        smallint subgroup "unique together"
+    }
+
+    teacher {
+        int id PK
+        string full_name
+    }
+
+    room {
+        int id PK
+        string room_number
+        string description
+    }
+
+    subject {
+        int id PK
+        string name "unique"
+    }
+
+    time_slot {
+        int id PK
+        int day_type_id FK
+        time start_time
+        time end_time
+        smallint lesson_number
+    }
+
+    day_type {
+        int id PK
+        string name
+    }

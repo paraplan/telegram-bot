@@ -1,9 +1,7 @@
 import orjson
 
-from src.schedule_parser.study_day import StudyDay
+from src.schedule_parser.study_day import StudyDaySchema
 
 with open("schedule.json") as file:
     text = file.read()
-# print(orjson.loads(text))
-schedule = StudyDay(**orjson.loads(text))
-print(schedule)
+schedule = StudyDaySchema(**orjson.loads(text))

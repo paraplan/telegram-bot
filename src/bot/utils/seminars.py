@@ -3,7 +3,7 @@ from typing import Self
 from pydantic import BaseModel
 
 from src.bot.utils.datetime import datetimes_filter
-from src.database.generated import GetScheduleByGroupResultSeminarsItem
+from src.database.models import Lesson
 
 
 class GroupedSeminar(BaseModel):
@@ -26,21 +26,20 @@ class GroupedSeminar(BaseModel):
 SeminarsType = dict[int, list[GroupedSeminar]]
 
 
-def convert_schedule_to_seminars(
-    schedule: list[GetScheduleByGroupResultSeminarsItem],
-) -> SeminarsType:
+def convert_schedule_to_seminars(schedule: list[Lesson]) -> SeminarsType:
     seminars: SeminarsType = dict()
-    for seminar in schedule:
+    for schedule_seminar in schedule:
+        seminar = schedule_seminar
         item = GroupedSeminar(
             name=seminar.subject.name,
-            number=seminar.number,
-            time=datetimes_filter((seminar.start_time, seminar.end_time)),
-            sub_group=seminar.sub_group,
-            cabinet=seminar.cabinet.room if seminar.cabinet else None,
+            number=seminar.time_slot.lesson_number,
+            time=datetimes_filter((seminar.time_slot.start_time, seminar.time_slot.end_time)),
+            sub_group=schedule_seminar.subgroup,
+            cabinet=seminar.room.room_number if seminar.room else None,
         )
-        if not seminars.get(seminar.number):
-            seminars[seminar.number] = []
-        seminars[seminar.number].append(item)
+        if not seminars.get(seminar.time_slot.lesson_number):
+            seminars[seminar.time_slot.lesson_number] = []
+        seminars[seminar.time_slot.lesson_number].append(item)
     return seminars
 
 
@@ -139,9 +138,7 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: in
     return pairs, is_schedule_subgrouped
 
 
-def convert_schedule_to_pairs(
-    schedule: list[GetScheduleByGroupResultSeminarsItem], sub_group: int = 0
-) -> tuple[dict, bool]:
+def convert_schedule_to_pairs(schedule: list[Lesson], sub_group: int = 0) -> tuple[dict, bool]:
     seminars = convert_schedule_to_seminars(schedule)
     grouped_seminars = group_seminars(seminars, sub_group)
     pairs = convert_seminars_to_pairs(grouped_seminars[0], sub_group)

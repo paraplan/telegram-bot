@@ -1,13 +1,13 @@
 from pydantic import BaseModel, Field, field_validator
 
-from src.schedule_parser.base import BaseItem
-from src.schedule_parser.hours import Hour
+from src.schedule_parser.base import BaseItemSchema
+from src.schedule_parser.hours import HourSchema
 
-LessonType = dict[int, Hour]
+LessonType = dict[int, HourSchema]
 HoursType = dict[int, LessonType]
 
 
-class Group(BaseModel):
+class GroupSchema(BaseModel):
     @field_validator("hours", mode="before")
     def validate_hours(cls, hours: HoursType | list[LessonType]) -> HoursType:
         """
@@ -19,7 +19,7 @@ class Group(BaseModel):
             return {index: hour for index, hour in enumerate(hours)}
         return hours
 
-    info: BaseItem = Field(validation_alias="group")
+    info: BaseItemSchema = Field(validation_alias="group")
     extramural: bool
     course: int
     number: int

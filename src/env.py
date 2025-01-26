@@ -9,8 +9,16 @@ BOT_TOKEN: Final[str] = os.getenv("BOT_TOKEN", "123546:supercooltoken")
 SCHEDULE_ENDPOINT: Final[str] = os.getenv("SCHEDULE_ENDPOINT", "https://example.com")
 SCHEDULE_TOKEN: Final[str] = os.getenv("SCHEDULE_TOKEN", "123546:supercooltoken")
 
-EDGEDB_INSTANCE: Final[str] = os.getenv("EDGEDB_INSTANCE", "edgedb")
-EDGEDB_DSN: Final[str] = os.getenv("EDGEDB_DSN", "edgedb://edgedb:5656")
+POSTGRES_USER: Final[str] = os.getenv("POSTGRES_USER", "paraplan")
+POSTGRES_PASSWORD: Final[str] = os.getenv("POSTGRES_PASSWORD", "paraplan")
+POSTGRES_HOST: Final[str] = os.getenv("POSTGRES_HOST", "db")
+POSTGRES_PORT: Final[str] = os.getenv("POSTGRES_PORT", "5432")
+POSTGRES_DB: Final[str] = os.getenv("POSTGRES_DB", "paraplan")
+
+POSTGRES_DSN: Final[str] = (
+    f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}?prepared_statement_cache_size=500"
+)
+
 
 DAEMON_INTERVAL: Final[int] = int(os.getenv("DAEMON_INTERVAL", 600))
 

@@ -1,16 +1,16 @@
 from datetime import time
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from src.schedule_parser.base import BaseItem
+from src.schedule_parser.base import BaseItemSchema
 
 
-class BellsHours(BaseModel):
+class BellsHoursSchema(BaseModel):
     start: time
     end: time
 
 
-class Bells(BaseModel):
+class BellsSchema(BaseModel):
     name: str
-    id: BaseItem
-    hours: list[BellsHours]
+    info: BaseItemSchema = Field(validation_alias="id")
+    hours: list[BellsHoursSchema]

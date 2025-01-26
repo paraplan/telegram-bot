@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-from src.schedule_parser.base import BaseItem
+from src.schedule_parser.base import BaseItemSchema
 
 
-class Hour(BaseModel):
+class HourSchema(BaseModel):
     occupation: str
-    room: BaseItem | None = None
+    room: BaseItemSchema | None = None

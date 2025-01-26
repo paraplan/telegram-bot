@@ -2,11 +2,11 @@ from datetime import date
 
 from pydantic import BaseModel
 
-from src.schedule_parser.area import Area
-from src.schedule_parser.bells import Bells
+from src.schedule_parser.area import AreaSchema
+from src.schedule_parser.bells import BellsSchema
 
 
-class StudyDay(BaseModel):
+class StudyDaySchema(BaseModel):
     date: date
-    bells: Bells
-    areas: list[Area]
+    bells: BellsSchema
+    areas: list[AreaSchema]

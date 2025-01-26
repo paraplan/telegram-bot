@@ -14,4 +14,9 @@ RUN uv sync
 COPY templates/ ./templates/
 COPY src/ ./src/
 
-ENTRYPOINT [ "uv", "run", "python3", "-m", "src.bot" ]
+COPY alembic.ini ./
+COPY migrations/ ./migrations/
+
+RUN chmod +x /app/src/bot/docker-entrypoint.sh
+
+ENTRYPOINT [ "/app/src/bot/docker-entrypoint.sh" ]

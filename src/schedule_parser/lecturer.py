@@ -1,16 +1,16 @@
 from pydantic import BaseModel, Field, field_validator
 
-from src.schedule_parser.base import BaseItem
+from src.schedule_parser.base import BaseItemSchema
 
-LecturerHourType = list["LecturerHour"]
+LecturerHourType = list["LecturerHourSchema"]
 
 
-class LecturerHour(BaseModel):
+class LecturerHourSchema(BaseModel):
     group_name: str = Field(validation_alias="group")
-    room: BaseItem | None
+    room: BaseItemSchema | None
 
 
-class Lecturer(BaseModel):
+class LecturerSchema(BaseModel):
     @field_validator("hours", mode="before")
     def validate_hours(
         cls, hours: dict[int, LecturerHourType] | list[LecturerHourType]
@@ -24,5 +24,5 @@ class Lecturer(BaseModel):
             return {index: hour for index, hour in enumerate(hours)}
         return hours
 
-    info: BaseItem = Field(validation_alias="lecturer")
-    hours: dict[int, list[LecturerHour]]
+    info: BaseItemSchema = Field(validation_alias="lecturer")
+    hours: dict[int, list[LecturerHourSchema]]

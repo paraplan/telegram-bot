@@ -4,36 +4,36 @@ services:
   bot:
     build:
       dockerfile: ./src/bot/Dockerfile
+    restart: unless-stopped
     container_name: ${PROJECT_NAME}_bot
     env_file:
       - .env
     depends_on:
-      - edgedb
+      - db
     dns:
       - 1.1.1.1
       - 1.0.0.1
-    restart: unless-stopped
 
   daemon:
     build:
       dockerfile: ./src/daemon/Dockerfile
+    restart: unless-stopped
     container_name: ${PROJECT_NAME}_daemon
     env_file:
       - .env
     depends_on:
-      - edgedb
-    restart: unless-stopped
+      - db
 
-  edgedb:
-    image: edgedb/edgedb
-    container_name: ${PROJECT_NAME}_edgedb
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    container_name: ${PROJECT_NAME}_postgres
     environment:
-      - EDGEDB_SERVER_SECURITY=insecure_dev_mode
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
-      - "./database/schema:/dbschema:ro"
-      - edgedb_data:/var/lib/edgedb/data
-    ports:
-      - "5656:5656"
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  edgedb_data:
+  postgres_data:
