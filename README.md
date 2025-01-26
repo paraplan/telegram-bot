@@ -1,4 +1,4 @@
-# Параплан - расписание ВГКЭ
+# Параплан - расписание занятий для студентов Витебского государственного колледжа электротехники.
 
 ## Как запустить сервер?
 
@@ -8,22 +8,22 @@ vim .env
 docker compose up -d
 ```
 
-
 ## Как запустить локально?
 
 1. Установить все зависимости
 
+-   [postgresql](https://www.postgresql.org/download/)
 -   [uv](https://docs.astral.sh/uv)
--   [Edgedb](https://docs.edgedb.com/get-started/quickstart#installation)
 
-2. Установить пакеты и инициализировать базу данных
+2. Установить пакеты и сделать миграции
 
 ```zsh
 uv sync
-edgedb project init
+uv run alembic upgrade head
 ```
 
 3. Скопировать и изменить .env
+
 ```zsh
 cp .env.example .env
 vim .env
@@ -32,5 +32,5 @@ vim .env
 4. Запустить нужный модуль
 
 ```zsh
-uv run python3 -m src.bot # либо src.daemon, src.schedule_parser
+uv run python -m src.bot # либо src.daemon, src.schedule_parser
 ```
