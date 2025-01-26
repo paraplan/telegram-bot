@@ -31,7 +31,11 @@ async def handle_group(message: Message, user: User, repository: RepositoryFacto
 
     await repository.user.update_group(user_id=message.from_user.id, group_id=int(chosen))
     await repository.user_settings.update_subgroup(user_id=message.from_user.id, subgroup=1)
+    text = (
+        "👥 Группа изменена, а подгруппа сброшена до первой\n"
+        "Чтобы изменить подгруппу, используйте /subgroup"
+    )
     await message.edit(
-        text="👥 Группа изменена, а подгруппа сброшена до первой\nЧтобы изменить подгруппу, используйте /subgroup",
+        text=text,
         message_id=choice_id,
     )

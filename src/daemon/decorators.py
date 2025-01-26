@@ -40,7 +40,7 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
             old_sorted = sorted(old_lessons, key=lambda x: x.id)
             new_sorted = sorted(new_lessons, key=lambda x: x.id)
 
-            for old, new in zip(old_sorted, new_sorted):
+            for old, new in zip(old_sorted, new_sorted, strict=True):
                 if (
                     old.subject_id != new.subject_id
                     or old.teacher_id != new.teacher_id
