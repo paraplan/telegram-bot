@@ -109,9 +109,11 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: in
             is_schedule_subgrouped = True
             continue
         if seminar.number % 2 == 0:
-            pair = PairModel(
-                name="None | " + seminar.name, cabinet=seminar.cabinet, time=seminar.time
-            )
+            if seminar.number == 0:
+                name = seminar.name
+            else:
+                name = f"None | {seminar.name}"
+            pair = PairModel(name=name, cabinet=seminar.cabinet, time=seminar.time)
             pairs[seminar.number // 2] = pair
             i += 1
             continue

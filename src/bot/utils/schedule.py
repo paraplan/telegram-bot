@@ -6,7 +6,7 @@ from telegrinder import InlineButton, InlineKeyboard, RowButtons
 from telegrinder.types import InlineKeyboardMarkup
 
 from src.bot.templates import render_template
-from src.bot.utils.seminars import convert_schedule_to_pairs
+from src.bot.utils.lessons import convert_schedule_to_pairs
 from src.database import RepositoryFactory
 from src.database.models import Group
 
