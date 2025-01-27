@@ -1,8 +1,15 @@
 version: "3.8"
 
 services:
+  base:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: paraplan:latest
+
   bot:
     build:
+      context: .
       dockerfile: ./src/bot/Dockerfile
     restart: unless-stopped
     container_name: ${PROJECT_NAME}_bot
@@ -10,12 +17,11 @@ services:
       - .env
     depends_on:
       - db
-    dns:
-      - 1.1.1.1
-      - 1.0.0.1
+      - base
 
   daemon:
     build:
+      context: .
       dockerfile: ./src/daemon/Dockerfile
     restart: unless-stopped
     container_name: ${PROJECT_NAME}_daemon
@@ -23,6 +29,7 @@ services:
       - .env
     depends_on:
       - db
+      - base
 
   db:
     image: postgres:17-alpine
