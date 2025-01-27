@@ -41,3 +41,11 @@ async def handle_monday(message: Message, user: User, repository: RepositoryFact
         user.settings.subgroup,
     )
     await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)
+
+
+@dp.message(Command("week"))
+async def handle_week(message: Message, user: User, repository: RepositoryFactory):
+    text, keyboard = await render_schedule_for_date(
+        repository, message.date, user.group, user.settings.subgroup, is_week=True
+    )
+    await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)

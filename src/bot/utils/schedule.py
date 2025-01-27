@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 from typing import Iterable
 
-from telegrinder import InlineButton, InlineKeyboard
+from telegrinder import InlineButton, InlineKeyboard, RowButtons
 from telegrinder.types import InlineKeyboardMarkup
 
 from src.bot.templates import render_template
@@ -16,6 +16,7 @@ class ScheduleCallbackData:
     date: str  # TODO: datetime.date now is not supported by telegrinder
     group_id: int
     subgroup: int
+    is_week: bool = False
 
 
 async def render_schedule_for_date(
@@ -23,11 +24,14 @@ async def render_schedule_for_date(
     date: datetime.date,
     group: Group | None = None,
     sub_group: int = 1,
+    is_week: bool = False,
 ) -> tuple[str, InlineKeyboardMarkup]:
     kb = InlineKeyboard()
     if not group:
         return "Вы не выбрали группу. Чтобы сделать это, введите /group", kb.get_markup()
     schedule = await repository.group.get_schedule(group.id, date)
+    if is_week:
+        kb.add(_get_week_keyboard(group.id, date))
     if not schedule:
         return (
             f"Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено",
@@ -37,7 +41,7 @@ async def render_schedule_for_date(
     grouped_seminars, _ = convert_schedule_to_pairs(schedule, sub_group)
     is_schedule_subgrouped = len(set((item.subgroup for item in schedule))) > 1
     if is_schedule_subgrouped:
-        kb = _get_subgroups_keyboard(group.id, date, sub_group)
+        kb.add(_get_subgroups_keyboard(group.id, date, sub_group, is_week=is_week))
     return render_template(
         "schedule.j2",
         {
@@ -49,16 +53,42 @@ async def render_schedule_for_date(
     ), kb.get_markup()
 
 
+def _get_week_keyboard(group_id: int, date: datetime.date) -> RowButtons[InlineButton]:
+    buttons: list[InlineButton] = []
+
+    week_days = _get_current_week(date)
+    for day in week_days:
+        buttons.append(
+            InlineButton(
+                day.strftime("%a" if day.day != date.day else "*%a*"),
+                callback_data=ScheduleCallbackData(
+                    date=day.strftime("%Y-%m-%d"), group_id=group_id, subgroup=0, is_week=True
+                ),
+            )
+        )
+    return RowButtons(*buttons)
+
+
+def _get_current_week(date: datetime.date) -> list[datetime.date]:
+    monday = date - datetime.timedelta(days=date.weekday())
+    week_days: list[datetime.date] = [monday + datetime.timedelta(days=i) for i in range(6)]
+    return week_days
+
+
 def _get_subgroups_keyboard(
-    group_id: int, date: datetime.date, selected_subgroup: int, subgroups: Iterable[int] = (1, 2)
-) -> InlineKeyboard:
-    kb = InlineKeyboard()
+    group_id: int,
+    date: datetime.date,
+    selected_subgroup: int,
+    subgroups: Iterable[int] = (1, 2),
+    is_week: bool = False,
+) -> RowButtons[InlineButton]:
+    buttons: list[InlineButton] = []
     for subgroup in subgroups:
         text = (
             f"*{subgroup} подгруппа*" if subgroup == selected_subgroup else f"{subgroup} подгруппа"
         )
         data = ScheduleCallbackData(
-            subgroup=subgroup, date=date.strftime("%Y-%m-%d"), group_id=group_id
+            subgroup=subgroup, date=date.strftime("%Y-%m-%d"), group_id=group_id, is_week=is_week
         )
-        kb.add(InlineButton(text, callback_data=data))
-    return kb
+        buttons.append(InlineButton(text, callback_data=data))
+    return RowButtons(*buttons)
