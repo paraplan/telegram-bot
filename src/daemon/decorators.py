@@ -31,17 +31,17 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
         result = await func(repository, group, schedule_date, *args, **kwargs)
 
         new_lessons = await repository.lesson.get(group_id=group.info.id, date=schedule_date)
+        new_lesson_ids = sorted(map(lambda x: x.id, new_lessons))
 
         if old_lesson_ids == []:
             await send_notification(
                 group.info.id, schedule_date, "schedule_added", check_lesson_types(new_lessons)
             )
-            return result
-        else:
+        elif old_lesson_ids != new_lesson_ids:
             await send_notification(
                 group.info.id, schedule_date, "schedule_updated", check_lesson_types(new_lessons)
             )
-            return result
+        return result
 
     return wrapper
 
