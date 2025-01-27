@@ -1,8 +1,8 @@
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 
-from src.database.models import User
+from src.database.models import Group, User, UserSettings
 from src.database.repositories.abc import BaseRepository
 
 
@@ -26,3 +26,27 @@ class UserRepository(BaseRepository[User]):
         async with self.sessionmaker() as session:
             await session.execute(statement)
             await session.commit()
+
+    async def get_by_settings(
+        self,
+        group_id: int,
+        is_notify: bool,
+        is_notify_vacation: bool | None = None,
+        is_notify_practice: bool | None = None,
+        is_notify_session: bool | None = None,
+    ):
+        statement = (
+            select(User)
+            .join(UserSettings)
+            .join(Group)
+            .where(UserSettings.is_notify == is_notify, Group.id == group_id)
+        )
+        if is_notify_vacation is not None:
+            statement = statement.where(UserSettings.is_notify_vacation == is_notify_vacation)
+        if is_notify_practice is not None:
+            statement = statement.where(UserSettings.is_notify_practice == is_notify_practice)
+        if is_notify_session is not None:
+            statement = statement.where(UserSettings.is_notify_session == is_notify_session)
+        async with self.sessionmaker() as session:
+            result = await session.execute(statement)
+        return result.scalars().all()

@@ -1,10 +1,12 @@
 import datetime
 import functools
+import re
 from collections.abc import Awaitable
 from typing import Any, Callable, TypeVar
 
-from src.bot.utils.notification import send_notification
+from src.bot.utils.notification import ScheduleType, send_notification
 from src.database import RepositoryFactory
+from src.database.models import Lesson
 from src.schedule_parser.group import GroupSchema
 
 T = TypeVar("T")
@@ -29,25 +31,27 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
         result = await func(repository, group, schedule_date, *args, **kwargs)
 
         new_lessons = await repository.lesson.get(group_id=group.info.id, date=schedule_date)
-        new_lesson_ids = sorted(map(lambda x: x.id, new_lessons))
 
-        if old_lesson_ids != new_lesson_ids:
-            group_db = await repository.group.get(id=group.info.id)
-            await send_notification(group_db, schedule_date, "schedule_added")
-        elif old_lessons and new_lessons:
-            group_db = await repository.group.get(id=group.info.id)
-            # Sort lessons by ID for consistent comparison
-            old_sorted = sorted(old_lessons, key=lambda x: x.id)
-            new_sorted = sorted(new_lessons, key=lambda x: x.id)
-
-            for old, new in zip(old_sorted, new_sorted, strict=True):
-                if (
-                    old.subject_id != new.subject_id
-                    or old.teacher_id != new.teacher_id
-                    or old.room_id != new.room_id
-                    or old.time_slot_id != new.time_slot_id
-                ):
-                    await send_notification(group_db, schedule_date, "schedule_updated")
-        return result
+        if old_lesson_ids == []:
+            await send_notification(
+                group.info.id, schedule_date, "schedule_added", check_lesson_types(new_lessons)
+            )
+            return result
+        else:
+            await send_notification(
+                group.info.id, schedule_date, "schedule_updated", check_lesson_types(new_lessons)
+            )
+            return result
 
     return wrapper
+
+
+def check_lesson_types(lessons: list[Lesson]) -> ScheduleType:
+    lesson_types = set(map(lambda x: x.subject.name.lower(), lessons))
+    if any(re.match(r"^практика\s*\w*$", lesson_type) for lesson_type in lesson_types):
+        return ScheduleType.PRACTICE
+    elif lesson_types == {"сессия"}:
+        return ScheduleType.SESSION
+    elif lesson_types == {"каникулы"}:
+        return ScheduleType.VACATION
+    return ScheduleType.DEFAULT

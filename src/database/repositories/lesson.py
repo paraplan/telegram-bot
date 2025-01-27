@@ -3,6 +3,7 @@ import datetime
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.orm import selectinload
 
 from src.database.models import Lesson, Schedule
 from src.database.repositories.abc import BaseRepository
@@ -37,6 +38,7 @@ class LessonRepository(BaseRepository[Lesson]):
                 Schedule.group_id == group_id,
                 Schedule.date == date,
             )
+            .options(selectinload(Lesson.subject))
         )
         async with self.sessionmaker() as session:
             result = await session.execute(statement)
