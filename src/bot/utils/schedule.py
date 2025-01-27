@@ -29,19 +29,21 @@ async def render_schedule_for_date(
     kb = InlineKeyboard()
     if not group:
         return "Вы не выбрали группу. Чтобы сделать это, введите /group", kb.get_markup()
+
     schedule = await repository.group.get_schedule(group.id, date)
-    if is_week:
-        kb.add(_get_week_keyboard(group.id, date))
-    if not schedule:
-        return (
-            f"Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено",
-            kb.get_markup(),
-        )
     schedule = sorted(schedule, key=lambda x: x.time_slot.lesson_number)
     grouped_seminars, _ = convert_schedule_to_pairs(schedule, sub_group)
     is_schedule_subgrouped = len(set((item.subgroup for item in schedule))) > 1
     if is_schedule_subgrouped:
         kb.add(_get_subgroups_keyboard(group.id, date, sub_group, is_week=is_week))
+    if is_week:
+        kb.add(_get_week_keyboard(group.id, date, sub_group))
+
+    if not schedule:
+        return (
+            f"Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено",
+            kb.get_markup(),
+        )
     return render_template(
         "schedule.j2",
         {
@@ -53,7 +55,9 @@ async def render_schedule_for_date(
     ), kb.get_markup()
 
 
-def _get_week_keyboard(group_id: int, date: datetime.date) -> RowButtons[InlineButton]:
+def _get_week_keyboard(
+    group_id: int, date: datetime.date, sub_group: int
+) -> RowButtons[InlineButton]:
     buttons: list[InlineButton] = []
 
     week_days = _get_current_week(date)
@@ -62,7 +66,10 @@ def _get_week_keyboard(group_id: int, date: datetime.date) -> RowButtons[InlineB
             InlineButton(
                 day.strftime("%a" if day.day != date.day else "*%a*"),
                 callback_data=ScheduleCallbackData(
-                    date=day.strftime("%Y-%m-%d"), group_id=group_id, subgroup=0, is_week=True
+                    date=day.strftime("%Y-%m-%d"),
+                    group_id=group_id,
+                    subgroup=sub_group,
+                    is_week=True,
                 ),
             )
         )

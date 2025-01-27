@@ -139,6 +139,8 @@ def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: in
 
 
 def convert_schedule_to_pairs(schedule: list[Lesson], sub_group: int = 0) -> tuple[dict, bool]:
+    if not schedule:
+        return {}, False
     seminars = convert_schedule_to_seminars(schedule)
     grouped_seminars = group_seminars(seminars, sub_group)
     pairs = convert_seminars_to_pairs(grouped_seminars[0], sub_group)
