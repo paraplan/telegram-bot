@@ -1,4 +1,4 @@
-from telegrinder import Checkbox, Dispatch, Message
+from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Checkbox, Dispatch, Message
 from telegrinder.rules import Command
 
 from src.bot.client import wm
@@ -45,7 +45,7 @@ async def handle_settings(
         is_picked=user_settings.is_notify_session,
     )
 
-    chosen, choice_id = await choice.wait(message.ctx_api, dp.callback_query)
+    chosen, choice_id = await choice.wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api)
 
     for key, value in chosen.items():
         params = {key: bool(value)}

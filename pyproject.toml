@@ -24,6 +24,9 @@ dev-dependencies = [
  "ruff>=0.9.3",
 ]
 
+[tool.uv.sources]
+telegrinder = { git = "https://github.com/timoniq/telegrinder.git" }
+
 [tool.pyright]
 venvPath = "."
 venv = ".venv"

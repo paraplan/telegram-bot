@@ -1,4 +1,4 @@
-from telegrinder import Choice, Dispatch, Message
+from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Choice, Dispatch, Message
 from telegrinder.rules import Command
 
 from src.bot.client import wm
@@ -27,7 +27,7 @@ async def handle_group(message: Message, user: User, repository: RepositoryFacto
             if index == 0:
                 is_picked = True
         choice.add_option(str(group.id), f"{group.name}", f"✅{group.name}", is_picked=is_picked)
-    chosen, choice_id = await choice.wait(message.ctx_api, dp.callback_query)
+    chosen, choice_id = await choice.wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api)
 
     await repository.user.update_group(user_id=message.from_user.id, group_id=int(chosen))
     await repository.user_settings.update_subgroup(user_id=message.from_user.id, subgroup=1)

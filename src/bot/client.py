@@ -1,7 +1,7 @@
 import locale
 from zoneinfo import ZoneInfo
 
-from telegrinder import API, HTMLFormatter, Telegrinder, Token, WaiterMachine
+from telegrinder import API, Dispatch, HTMLFormatter, Telegrinder, Token, WaiterMachine
 from telegrinder.modules import logger
 
 from src.bot.utils.middlewares import StageMiddleware, UserRegisterMiddleware
@@ -13,11 +13,11 @@ logger.set_level(LOGGER_LEVEL)
 locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
 api = API(token=Token(BOT_TOKEN))
-bot = Telegrinder(api)
+dp = Dispatch()
+bot = Telegrinder(api, dispatch=dp)
+wm = WaiterMachine(dp)
 
-wm = WaiterMachine()
 formatter = HTMLFormatter
-db_client = ""
 
 bot.on.message.register_middleware()(cls=StageMiddleware)
 bot.on.message.register_middleware()(cls=UserRegisterMiddleware)
