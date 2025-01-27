@@ -15,7 +15,7 @@ async def handle_settings(
     choice = Checkbox(
         message="⚙️ Настройки уведомлений",
         ready_text="⚙️ Сохранить",
-        max_in_row=1,
+        max_in_row=2,
         chat_id=message.chat.id,
         waiter_machine=wm,
     )
@@ -27,16 +27,22 @@ async def handle_settings(
         is_picked=user_settings.is_notify,
     )
     choice.add_option(
-        "is_notify_session",
-        "📚 Сессия ❌",
-        "📚 Сессия ✅",
-        is_picked=user_settings.is_notify_session,
+        "is_notify_vacation",
+        "🏖️ Каникулы ❌",
+        "🏖️ Каникулы ✅",
+        is_picked=user_settings.is_notify_vacation,
     )
     choice.add_option(
         "is_notify_practice",
         "💻 Практика ❌",
         "💻 Практика ✅",
         is_picked=user_settings.is_notify_practice,
+    )
+    choice.add_option(
+        "is_notify_session",
+        "📚 Сессия ❌",
+        "📚 Сессия ✅",
+        is_picked=user_settings.is_notify_session,
     )
 
     chosen, choice_id = await choice.wait(message.ctx_api, dp.callback_query)

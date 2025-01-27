@@ -28,8 +28,9 @@ class UserSettings(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     subgroup: Mapped[int] = mapped_column(SmallInteger, server_default=func.text("1"))
     is_notify: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
-    is_notify_session: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
+    is_notify_vacation: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
     is_notify_practice: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
+    is_notify_session: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="settings")
