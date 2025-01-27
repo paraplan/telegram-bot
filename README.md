@@ -15,18 +15,18 @@ docker compose up -d
 -   [postgresql](https://www.postgresql.org/download/)
 -   [uv](https://docs.astral.sh/uv)
 
-2. Установить пакеты и сделать миграции
-
-```zsh
-uv sync
-uv run alembic upgrade head
-```
-
-3. Скопировать и изменить .env
+2. Скопировать и изменить .env
 
 ```zsh
 cp .env.example .env
 vim .env
+```
+
+3. Установить пакеты и сделать миграции
+
+```zsh
+uv sync
+uv run alembic upgrade head
 ```
 
 4. Запустить нужный модуль
