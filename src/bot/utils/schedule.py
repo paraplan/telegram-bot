@@ -32,7 +32,10 @@ async def render_schedule_for_date(
 
     schedule = await repository.group.get_schedule(group.id, date)
     schedule = sorted(schedule, key=lambda x: x.time_slot.lesson_number)
-    grouped_seminars, _ = convert_schedule_to_pairs(schedule, sub_group)
+    try:
+        grouped_seminars, _ = convert_schedule_to_pairs(schedule, sub_group)
+    except ValueError as e:
+        return f"Ошибка при формировании расписания: {e}", kb.get_markup()
     is_schedule_subgrouped = len(set((item.subgroup for item in schedule))) > 1
     if is_schedule_subgrouped:
         kb.add(_get_subgroups_keyboard(group.id, date, sub_group, is_week=is_week))
