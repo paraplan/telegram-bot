@@ -11,6 +11,6 @@ async def update_commands():
             BotCommand("tomorrow", "Расписание на завтра"),
             BotCommand("today", "Расписание на сегодня"),
             BotCommand("monday", "Расписание на понедельник"),
-            BotCommand("subgroup", "Выбрать подгруппу"),
+            BotCommand("settings", "Настройки"),
         ]
     )
