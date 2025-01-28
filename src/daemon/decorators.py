@@ -4,9 +4,10 @@ import re
 from collections.abc import Awaitable
 from typing import Any, Callable, TypeVar
 
-from src.bot.utils.notification import ScheduleType, send_notification
+from src.bot.utils.notification import send_notification
 from src.database import RepositoryFactory
 from src.database.models import Lesson
+from src.database.schemas import ScheduleType
 from src.schedule_parser.group import GroupSchema
 
 T = TypeVar("T")

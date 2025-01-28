@@ -1,5 +1,4 @@
 from datetime import date
-from enum import Enum
 from typing import Literal
 
 from loguru import logger
@@ -7,15 +6,9 @@ from telegrinder.types import ReplyKeyboardRemove
 
 from src.bot.client import api
 from src.database.repositories.factory import RepositoryFactory
+from src.database.schemas import ScheduleType
 
 NotificationType = Literal["schedule_updated", "schedule_added"]
-
-
-class ScheduleType(Enum):
-    DEFAULT = "is_notify"
-    VACATION = "is_notify_vacation"
-    PRACTICE = "is_notify_practice"
-    SESSION = "is_notify_session"
 
 
 async def send_notification(
@@ -26,11 +19,7 @@ async def send_notification(
 ):
     group = await RepositoryFactory().group.get(id=group_id)
     users = await RepositoryFactory().user.get_by_settings(
-        group_id=group_id,
-        is_notify=True,
-        is_notify_vacation=schedule_type == ScheduleType.VACATION,
-        is_notify_practice=schedule_type == ScheduleType.PRACTICE,
-        is_notify_session=schedule_type == ScheduleType.SESSION,
+        group_id=group_id, schedule_type=schedule_type
     )
     text = {
         "schedule_updated": f"🔄 Обновлено расписание {group.name} на {date:<b>%A</b>, %d %B}",

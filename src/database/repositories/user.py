@@ -4,6 +4,7 @@ from sqlalchemy.orm import selectinload
 
 from src.database.models import Group, User, UserSettings
 from src.database.repositories.abc import BaseRepository
+from src.database.schemas import ScheduleType
 
 
 class UserRepository(BaseRepository[User]):
@@ -30,23 +31,20 @@ class UserRepository(BaseRepository[User]):
     async def get_by_settings(
         self,
         group_id: int,
-        is_notify: bool,
-        is_notify_vacation: bool | None = None,
-        is_notify_practice: bool | None = None,
-        is_notify_session: bool | None = None,
+        schedule_type: ScheduleType,
     ):
         statement = (
             select(User)
             .join(UserSettings)
             .join(Group)
-            .where(UserSettings.is_notify == is_notify, Group.id == group_id)
+            .where(UserSettings.is_notify, Group.id == group_id)
         )
-        if is_notify_vacation is not None:
-            statement = statement.where(UserSettings.is_notify_vacation == is_notify_vacation)
-        if is_notify_practice is not None:
-            statement = statement.where(UserSettings.is_notify_practice == is_notify_practice)
-        if is_notify_session is not None:
-            statement = statement.where(UserSettings.is_notify_session == is_notify_session)
+        if schedule_type == ScheduleType.VACATION:
+            statement = statement.where(UserSettings.is_notify_vacation)
+        elif schedule_type == ScheduleType.PRACTICE:
+            statement = statement.where(UserSettings.is_notify_practice)
+        elif schedule_type == ScheduleType.SESSION:
+            statement = statement.where(UserSettings.is_notify_session)
         async with self.sessionmaker() as session:
             result = await session.execute(statement)
         return result.scalars().all()
