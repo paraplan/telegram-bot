@@ -21,9 +21,15 @@ async def send_notification(
     users = await RepositoryFactory().user.get_by_settings(
         group_id=group_id, schedule_type=schedule_type
     )
+    emoji = {
+        ScheduleType.DEFAULT: "🆕",
+        ScheduleType.VACATION: "🏖️",
+        ScheduleType.PRACTICE: "💻",
+        ScheduleType.SESSION: "📚",
+    }[schedule_type]
     text = {
         "schedule_updated": f"🔄 Обновлено расписание {group.name} на {date:<b>%A</b>, %d %B}",
-        "schedule_added": f"🆕 Добавлено расписание {group.name} на {date:<b>%A</b>, %d %B}",
+        "schedule_added": f"{emoji} Добавлено расписание {group.name} на {date:<b>%A</b>, %d %B}",
     }[notification_type]
     for user in users:
         logger.debug(f"send notification to user: {user}")
