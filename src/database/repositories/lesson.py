@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 
@@ -19,7 +19,7 @@ class LessonCreate(BaseModel):
 
 
 class LessonRepository(BaseRepository[Lesson]):
-    async def insert_or_update(self, lesson: LessonCreate) -> None:
+    async def merge(self, lesson: LessonCreate) -> None:
         insert_statement = (
             insert(Lesson)
             .values(**lesson.model_dump())
@@ -29,6 +29,12 @@ class LessonRepository(BaseRepository[Lesson]):
             )
         )
         await self._execute(insert_statement, commit=True)
+
+    async def prepare_before_merge(self, schedule_id: int, time_slot_id: int) -> None:
+        delete_statement = delete(Lesson).where(
+            Lesson.schedule_id == schedule_id, Lesson.time_slot_id == time_slot_id
+        )
+        await self._execute(delete_statement, commit=True)
 
     async def get(self, group_id: int, date: datetime.date) -> list[Lesson]:
         statement = (

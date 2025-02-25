@@ -43,6 +43,7 @@ async def process_hours(
     time_slot_ids: dict[int, int],
 ) -> None:
     for hour_number, hour in group.hours.items():
+        await repository.lesson.prepare_before_merge(schedule_id, time_slot_ids[hour_number])
         for sub_group_number, sub_group in hour.items():
             await process_lesson(
                 repository=repository,
@@ -70,7 +71,7 @@ async def process_lesson(
         time_slot_id=time_slot_id,
         subgroup=sub_group_number,
     )
-    await repository.lesson.insert_or_update(lesson_create)
+    await repository.lesson.merge(lesson_create)
 
 
 async def create_group(repository: RepositoryFactory, group: GroupSchema) -> Group:

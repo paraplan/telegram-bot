@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
-from sqlalchemy import CursorResult, Insert, Select
+from sqlalchemy import CursorResult, Delete, Insert, Select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.database.models import Base
@@ -17,7 +17,7 @@ class BaseRepository(ABCRepository[T], Generic[T]):
     def __init__(self, sessionmaker: async_sessionmaker[AsyncSession]):
         self.sessionmaker = sessionmaker
 
-    async def _execute(self, statement: Insert, commit: bool = False) -> CursorResult[T]:
+    async def _execute(self, statement: Insert | Delete, commit: bool = False) -> CursorResult[T]:
         async with self.sessionmaker() as session:
             result = await session.execute(statement)
             if commit:
