@@ -1,5 +1,7 @@
 import datetime
 
+from loguru import logger
+
 from src.daemon.decorators import check_lesson_updates
 from src.database import (
     GroupCreate,
@@ -42,28 +44,27 @@ async def process_diff_for_hours(
     time_slot_ids: dict[int, int],
 ) -> None:
     existing_hours = await repository.lesson.get(group_id=group.info.id, date=schedule.date)
-    # if group has hours that are not in time_slot_ids, delete them
-
-    # Создаем словарь существующих уроков по номеру пары и подгруппе
-    existing_lessons_by_hour = {}
-    for lesson in existing_hours:
-        hour_number = lesson.time_slot.lesson_number
-        subgroup = lesson.subgroup
-        if hour_number not in existing_lessons_by_hour:
-            existing_lessons_by_hour[hour_number] = {}
-        existing_lessons_by_hour[hour_number][subgroup] = lesson
-
-    # Проверяем, какие уроки нужно удалить
-    for hour_number, subgroups in existing_lessons_by_hour.items():
-        # Если номер пары отсутствует в новом расписании
-        if hour_number not in time_slot_ids:
-            for lesson in subgroups.values():
+    subgroups = set(lesson.subgroup for lesson in existing_hours)
+    logger.debug(f"Subgroups: {subgroups}")
+    # if group has hours that has been deleted, delete them from database
+    # for this we need to compare existing_hours with group.hours
+    for subgroup in subgroups:
+        existing_hours_numbers = set(
+            lesson.time_slot.lesson_number
+            for lesson in existing_hours
+            if lesson.subgroup == subgroup
+        )
+        new_hours_numbers = set(
+            hour_number
+            for hour_number in group.hours.keys()
+            if group.hours[hour_number].get(subgroup)
+        )
+        diff = existing_hours_numbers - new_hours_numbers
+        if diff:
+            logger.debug(f"Diff of hours: {diff}")
+        for lesson in existing_hours:
+            if lesson.time_slot.lesson_number in diff:
                 await repository.lesson.delete(lesson.id)
-        else:
-            # Если номер пары есть, проверяем подгруппы
-            for subgroup, lesson in subgroups.items():
-                if hour_number not in group.hours or subgroup not in group.hours[hour_number]:
-                    await repository.lesson.delete(lesson.id)
 
 
 async def process_new_hours(
