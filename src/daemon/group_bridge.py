@@ -24,26 +24,55 @@ async def process_group(
 ) -> None:
     """Process group schedule and update database"""
     await create_group(repository, group)
-    schedule = await process_schedule(repository, group.info.id, schedule_date)
-    await process_hours(repository, group, schedule.id, time_slot_ids)
+    schedule_create = ScheduleCreate(group_id=group.info.id, date=schedule_date)
+    schedule = await repository.schedule.select(schedule_create)
+    # if schedule already exists process diff for hours
+    # (delete lessons that are not in time_slot_ids)
+    if schedule:
+        await process_diff_for_hours(repository, group, schedule, time_slot_ids)
+    else:
+        schedule = await repository.schedule.create(schedule_create)
+    await process_new_hours(repository, group, schedule.id, time_slot_ids)
 
 
-async def process_schedule(
-    repository: RepositoryFactory, group_id: int, schedule_date: datetime.date
-) -> Schedule:
-    schedule_create = ScheduleCreate(group_id=group_id, date=schedule_date)
-    schedule = await repository.schedule.insert_or_select(schedule_create)
-    return schedule
+async def process_diff_for_hours(
+    repository: RepositoryFactory,
+    group: GroupSchema,
+    schedule: Schedule,
+    time_slot_ids: dict[int, int],
+) -> None:
+    existing_hours = await repository.lesson.get(group_id=group.info.id, date=schedule.date)
+    # if group has hours that are not in time_slot_ids, delete them
+
+    # Создаем словарь существующих уроков по номеру пары и подгруппе
+    existing_lessons_by_hour = {}
+    for lesson in existing_hours:
+        hour_number = lesson.time_slot.lesson_number
+        subgroup = lesson.subgroup
+        if hour_number not in existing_lessons_by_hour:
+            existing_lessons_by_hour[hour_number] = {}
+        existing_lessons_by_hour[hour_number][subgroup] = lesson
+
+    # Проверяем, какие уроки нужно удалить
+    for hour_number, subgroups in existing_lessons_by_hour.items():
+        # Если номер пары отсутствует в новом расписании
+        if hour_number not in time_slot_ids:
+            for lesson in subgroups.values():
+                await repository.lesson.delete(lesson.id)
+        else:
+            # Если номер пары есть, проверяем подгруппы
+            for subgroup, lesson in subgroups.items():
+                if hour_number not in group.hours or subgroup not in group.hours[hour_number]:
+                    await repository.lesson.delete(lesson.id)
 
 
-async def process_hours(
+async def process_new_hours(
     repository: RepositoryFactory,
     group: GroupSchema,
     schedule_id: int,
     time_slot_ids: dict[int, int],
 ) -> None:
     for hour_number, hour in group.hours.items():
-        await repository.lesson.prepare_before_merge(schedule_id, time_slot_ids[hour_number])
         for sub_group_number, sub_group in hour.items():
             await process_lesson(
                 repository=repository,

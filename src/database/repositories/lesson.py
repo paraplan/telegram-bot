@@ -30,12 +30,6 @@ class LessonRepository(BaseRepository[Lesson]):
         )
         await self._execute(insert_statement, commit=True)
 
-    async def prepare_before_merge(self, schedule_id: int, time_slot_id: int) -> None:
-        delete_statement = delete(Lesson).where(
-            Lesson.schedule_id == schedule_id, Lesson.time_slot_id == time_slot_id
-        )
-        await self._execute(delete_statement, commit=True)
-
     async def get(self, group_id: int, date: datetime.date) -> list[Lesson]:
         statement = (
             select(Lesson)
@@ -44,8 +38,12 @@ class LessonRepository(BaseRepository[Lesson]):
                 Schedule.group_id == group_id,
                 Schedule.date == date,
             )
-            .options(selectinload(Lesson.subject))
+            .options(selectinload(Lesson.subject), selectinload(Lesson.time_slot))
         )
         async with self.sessionmaker() as session:
             result = await session.execute(statement)
         return list(result.scalars().all())
+
+    async def delete(self, lesson_id: int) -> None:
+        delete_statement = delete(Lesson).where(Lesson.id == lesson_id)
+        await self._execute(delete_statement, commit=True)
