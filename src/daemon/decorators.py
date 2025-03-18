@@ -49,7 +49,7 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
 
 def check_lesson_types(lessons: list[Lesson]) -> ScheduleType:
     lesson_types = set(map(lambda x: x.subject.name.lower(), lessons))
-    if any(re.match(r"^практика\s*\w*$", lesson_type) for lesson_type in lesson_types):
+    if all(re.match(r"^практика\s*\w*$", lesson_type) for lesson_type in lesson_types):
         return ScheduleType.PRACTICE
     elif lesson_types == {"сессия"}:
         return ScheduleType.SESSION
