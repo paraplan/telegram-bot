@@ -1,3 +1,4 @@
+from loguru import logger
 from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Choice, Dispatch, Message
 from telegrinder.rules import Command
 
@@ -11,6 +12,10 @@ dp = Dispatch()
 @dp.message(Command("group"))
 async def handle_group(message: Message, user: User, repository: RepositoryFactory):
     groups = await repository.group.get_all()
+    if len(groups) == 0:
+        await message.answer("🚫 Ошибка: Группы не найдены")
+        logger.error("No groups found, perhaps the database is empty (daemon not running yet)?")
+        return
     choice = Choice(
         message="Выберите группу",
         ready_text="Подтвердить👌",
