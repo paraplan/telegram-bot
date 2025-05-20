@@ -75,3 +75,22 @@ async def handle_date(
         repository, date, user.group, user_settings.subgroup, is_week=True
     )
     await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)
+
+
+@dp.message(Command("next"))
+async def handle_next(
+    message: Message, user: User, user_settings: UserSettings, repository: RepositoryFactory
+):
+    if user.group is None:
+        await message.answer("Вы не выбрали группу. Чтобы сделать это, введите /group")
+        return
+    date = await repository.schedule.select_nearest_date_with_schedule(user.group.id)
+    if date is None:
+        await message.answer(
+            "📚 Расписание на ближайшие дни не найдено, попробуйте команды /tomorrow или /today"
+        )
+        return
+    text, keyboard = await render_schedule_for_date(
+        repository, date, user.group, user_settings.subgroup, is_week=False
+    )
+    await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)

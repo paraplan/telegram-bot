@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import insert, select
+from sqlalchemy import func, insert, select
 
 from src.database.models import Schedule
 from src.database.repositories.abc import BaseRepository
@@ -27,3 +27,16 @@ class ScheduleRepository(BaseRepository[Schedule]):
         async with self.sessionmaker() as session:
             result = await session.execute(select_statement)
         return result.scalar_one_or_none()
+
+    async def select_nearest_date_with_schedule(self, group_id: int) -> datetime.date | None:
+        select_statement = (
+            select(func.min(Schedule.date).label("min_date"))
+            .group_by(Schedule.group_id)
+            .group_by(Schedule.date)
+            .having(Schedule.group_id == group_id)
+            .having(Schedule.date > datetime.date.today())
+            .limit(1)
+        )
+        async with self.sessionmaker() as session:
+            result = await session.execute(select_statement)
+            return result.scalar_one_or_none()
