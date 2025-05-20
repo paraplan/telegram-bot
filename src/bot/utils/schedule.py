@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 from typing import Iterable
 
-from telegrinder import InlineButton, InlineKeyboard, RowButtons
+from telegrinder import InlineButton, InlineKeyboard
 from telegrinder.types import InlineKeyboardMarkup
 
 from src.bot.templates import render_template
@@ -38,9 +38,14 @@ async def render_schedule_for_date(
         return f"Ошибка при формировании расписания: {e}", kb.get_markup()
     is_schedule_subgrouped = len(set((item.subgroup for item in schedule))) > 1
     if is_schedule_subgrouped:
-        kb.add(_get_subgroups_keyboard(group.id, date, sub_group, is_week=is_week))
+        buttons = _get_subgroups_keyboard(group.id, date, sub_group, is_week=is_week)
+        for button in buttons:
+            kb.add(button)
+        kb.row()
     if is_week:
-        kb.add(_get_week_keyboard(group.id, date, sub_group))
+        buttons = _get_week_keyboard(group.id, date, sub_group)
+        for button in buttons:
+            kb.add(button)
 
     if not schedule:
         return (
@@ -58,9 +63,7 @@ async def render_schedule_for_date(
     ), kb.get_markup()
 
 
-def _get_week_keyboard(
-    group_id: int, date: datetime.date, sub_group: int
-) -> RowButtons[InlineButton]:
+def _get_week_keyboard(group_id: int, date: datetime.date, sub_group: int) -> list[InlineButton]:
     buttons: list[InlineButton] = []
 
     week_days = _get_current_week(date)
@@ -76,7 +79,7 @@ def _get_week_keyboard(
                 ),
             )
         )
-    return RowButtons(*buttons)
+    return buttons
 
 
 def _get_current_week(date: datetime.date) -> list[datetime.date]:
@@ -91,7 +94,7 @@ def _get_subgroups_keyboard(
     selected_subgroup: int,
     subgroups: Iterable[int] = (1, 2),
     is_week: bool = False,
-) -> RowButtons[InlineButton]:
+) -> list[InlineButton]:
     buttons: list[InlineButton] = []
     for subgroup in subgroups:
         text = (
@@ -101,4 +104,4 @@ def _get_subgroups_keyboard(
             subgroup=subgroup, date=date.strftime("%Y-%m-%d"), group_id=group_id, is_week=is_week
         )
         buttons.append(InlineButton(text, callback_data=data))
-    return RowButtons(*buttons)
+    return buttons
