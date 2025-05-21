@@ -1,12 +1,6 @@
 version: "3.8"
 
 services:
-  base:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: paraplan:latest
-
   bot:
     build:
       context: .
@@ -17,7 +11,6 @@ services:
       - .env
     depends_on:
       - db
-      - base
 
   daemon:
     build:
@@ -29,7 +22,6 @@ services:
       - .env
     depends_on:
       - db
-      - base
 
   db:
     image: postgres:17-alpine
