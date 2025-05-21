@@ -4,7 +4,7 @@ import datetime
 from loguru import logger
 
 from src.daemon.db_bridge import update_schedules
-from src.daemon.schedule_fetcher import get_updated_schedules
+from src.daemon.schedule_fetcher import get_schedules_for_updating
 from src.env import DAEMON_INTERVAL, LOGGER_LEVEL, MODE
 
 logger = logger.bind(name="daemon", level=LOGGER_LEVEL)
@@ -13,7 +13,7 @@ logger = logger.bind(name="daemon", level=LOGGER_LEVEL)
 async def start_daemon():
     while True:
         await sleep_until()
-        schedules = await get_updated_schedules()
+        schedules = await get_schedules_for_updating()
         await update_schedules(schedules)
         logger.debug(f"daemon will go sleep for {DAEMON_INTERVAL} seconds")
         await asyncio.sleep(DAEMON_INTERVAL)
