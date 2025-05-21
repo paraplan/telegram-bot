@@ -12,8 +12,9 @@ async def update_commands():
             BotCommand("today", "📅 Расписание на сегодня"),
             BotCommand("monday", "📅 Расписание на понедельник"),
             BotCommand("week", "📅 Расписание на неделю"),
-            BotCommand("settings", "⚙️ Настройки"),
-            BotCommand("subgroup", "➗Выбрать подгруппу"),
             BotCommand("date", "📅 Расписание на дату"),
+            BotCommand("subgroup", "➗Выбрать подгруппу"),
+            BotCommand("settings", "⚙️ Настройки"),
+            BotCommand("version", "📘 Версия бота"),
         ]
     )
