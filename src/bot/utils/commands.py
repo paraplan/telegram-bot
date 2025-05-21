@@ -8,7 +8,6 @@ async def update_commands():
         commands=[
             BotCommand("start", "🤨"),
             BotCommand("group", "👥 Выбрать группу"),
-            BotCommand("tomorrow", "📅 Расписание на завтра"),
             BotCommand("next", "🆕 Расписание на ближайший день"),
             BotCommand("today", "📅 Расписание на сегодня"),
             BotCommand("monday", "📅 Расписание на понедельник"),
