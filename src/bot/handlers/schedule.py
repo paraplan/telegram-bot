@@ -1,7 +1,16 @@
 import datetime
 
-from telegrinder import MESSAGE_FROM_USER, Dispatch, Message, MessageReplyHandler
-from telegrinder.rules import Command, Regex
+from telegrinder import (
+    CALLBACK_QUERY_FOR_MESSAGE,
+    MESSAGE_FROM_USER,
+    CallbackQueryCute,
+    Dispatch,
+    InlineButton,
+    InlineKeyboard,
+    Message,
+    MessageCute,
+)
+from telegrinder.rules import CallbackDataEq, Command, Regex
 
 from src.bot.client import formatter, wm
 from src.bot.utils.schedule import render_schedule_for_date
@@ -59,22 +68,55 @@ async def handle_week(
     await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)
 
 
+DATE_KEYBOARD = InlineKeyboard()
+DATE_KEYBOARD.add(InlineButton("Расписание на сегодня", callback_data="today"))
+DATE_KEYBOARD.add(InlineButton("Расписание на завтра", callback_data="tomorrow"))
+DATE_KEYBOARD.row()
+DATE_KEYBOARD.add(InlineButton("Отменить ввод даты", callback_data="cancel"))
+
+
 @dp.message(Command("date"))
 async def handle_date(
     message: Message, user: User, user_settings: UserSettings, repository: RepositoryFactory
 ):
-    await message.answer("Напишите дату в формате DD.MM.YYYY")
-    message, _ = await wm.wait(
-        MESSAGE_FROM_USER,
-        message.from_user.id,
-        release=Regex(r"\d{2}\.\d{2}\.\d{4}"),
-        on_miss=MessageReplyHandler("Вы ввели некорректную дату", as_reply=True),
+    request_message = await message.answer(
+        "Напишите дату в формате DD.MM.YYYY или выберите дату из списка",
+        reply_markup=DATE_KEYBOARD.get_markup(),
     )
-    date = datetime.datetime.strptime(message.text.unwrap(), "%d.%m.%Y")
+    request_message_id = request_message.unwrap().message_id
+
+    _, event, _ = await wm.wait_many(
+        MESSAGE_FROM_USER(message.from_user.id),
+        CALLBACK_QUERY_FOR_MESSAGE(request_message_id),
+        release=Regex(r"\d{2}\.\d{2}\.\d{4}")
+        | CallbackDataEq("cancel")
+        | CallbackDataEq("today")
+        | CallbackDataEq("tomorrow"),
+    )
+
+    date: datetime.datetime
+    match event:
+        case MessageCute():
+            date = datetime.datetime.strptime(event.text.unwrap(), "%d.%m.%Y")
+        case CallbackQueryCute():
+            callback_data = event.data.unwrap()
+            if callback_data == "today":
+                date = message.date
+            elif callback_data == "tomorrow":
+                date = message.date + datetime.timedelta(days=1)
+            else:
+                return
+
     text, keyboard = await render_schedule_for_date(
         repository, date, user.group, user_settings.subgroup, is_week=True
     )
-    await message.answer(text, parse_mode=formatter.PARSE_MODE, reply_markup=keyboard)
+    await message.ctx_api.edit_message_text(
+        chat_id=message.chat_id,
+        message_id=request_message_id,
+        text=text,
+        parse_mode=formatter.PARSE_MODE,
+        reply_markup=keyboard,
+    )
 
 
 @dp.message(Command("next"))
