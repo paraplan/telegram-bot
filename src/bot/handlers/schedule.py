@@ -80,7 +80,7 @@ async def handle_date(
     message: Message, user: User, user_settings: UserSettings, repository: RepositoryFactory
 ):
     request_message = await message.answer(
-        "Напишите дату в формате DD.MM.YYYY или выберите дату из списка",
+        "🗓️ Напишите дату в формате DD.MM.YYYY или выберите дату из списка",
         reply_markup=DATE_KEYBOARD.get_markup(),
     )
     request_message_id = request_message.unwrap().message_id
@@ -88,10 +88,7 @@ async def handle_date(
     _, event, _ = await wm.wait_many(
         MESSAGE_FROM_USER(message.from_user.id),
         CALLBACK_QUERY_FOR_MESSAGE(request_message_id),
-        release=Regex(r"\d{2}\.\d{2}\.\d{4}")
-        | CallbackDataEq("cancel")
-        | CallbackDataEq("today")
-        | CallbackDataEq("tomorrow"),
+        release=Regex(r"\d{2}\.\d{2}\.\d{4}") | CallbackDataEq(["cancel", "today", "tomorrow"]),
     )
 
     date: datetime.datetime
@@ -105,6 +102,11 @@ async def handle_date(
             elif callback_data == "tomorrow":
                 date = message.date + datetime.timedelta(days=1)
             else:
+                await message.ctx_api.edit_message_text(
+                    chat_id=message.chat_id,
+                    message_id=request_message_id,
+                    text="ℹ️ Ввод даты отменен",
+                )
                 return
 
     text, keyboard = await render_schedule_for_date(

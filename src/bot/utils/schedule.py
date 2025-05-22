@@ -28,14 +28,14 @@ async def render_schedule_for_date(
 ) -> tuple[str, InlineKeyboardMarkup]:
     kb = InlineKeyboard()
     if not group:
-        return "Вы не выбрали группу. Чтобы сделать это, введите /group", kb.get_markup()
+        return "👥 Вы не выбрали группу. Чтобы сделать это, введите /group", kb.get_markup()
 
     schedule = await repository.group.get_schedule(group.id, date)
     schedule = sorted(schedule, key=lambda x: x.time_slot.lesson_number)
     try:
         grouped_seminars, _ = convert_schedule_to_pairs(schedule, sub_group)
-    except ValueError as e:
-        return f"Ошибка при формировании расписания: {e}", kb.get_markup()
+    except Exception as e:
+        return f"🚫 Ошибка при формировании расписания: {e}", kb.get_markup()
     is_schedule_subgrouped = len(set((item.subgroup for item in schedule))) > 1
     if is_schedule_subgrouped:
         buttons = _get_subgroups_keyboard(group.id, date, sub_group, is_week=is_week)
@@ -49,7 +49,7 @@ async def render_schedule_for_date(
 
     if not schedule:
         return (
-            f"Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено",
+            f"ℹ️ Расписания {group.name} на {date.strftime('%d.%m.%Y')} не найдено",
             kb.get_markup(),
         )
     return render_template(
