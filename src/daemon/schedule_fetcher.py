@@ -22,7 +22,7 @@ async def get_schedules_for_updating() -> list[StudyDaySchema]:
             continue
         schedule = StudyDaySchema(**orjson.loads(schedule_data))
         schedules_for_updating.append(schedule)
-        if schedule.date.weekday() == 6:  # for addition parsing of Monday schedule
+        if schedule.date.weekday() == 5:  # for addition parsing of Monday schedule
             n += 1
             continue
         break
