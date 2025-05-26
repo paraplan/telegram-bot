@@ -12,6 +12,7 @@ from src.database import (
     SubjectCreate,
 )
 from src.database.models import Group, Room, Schedule, Subject
+from src.schedule_parser.area import AreaSchema
 from src.schedule_parser.base import BaseItemSchema
 from src.schedule_parser.group import GroupSchema
 from src.schedule_parser.hours import HourSchema
@@ -20,18 +21,19 @@ from src.schedule_parser.hours import HourSchema
 @check_lesson_updates
 async def process_group(
     repository: RepositoryFactory,
+    area: AreaSchema,
     group: GroupSchema,
     schedule_date: datetime.date,
     time_slot_ids: dict[int, int],
 ) -> None:
     """Process group schedule and update database"""
-    await create_group(repository, group)
+    await create_group(repository, area, group)
     schedule_create = ScheduleCreate(group_id=group.info.id, date=schedule_date)
     schedule = await repository.schedule.select(schedule_create)
     # if schedule already exists process diff for hours
     # (delete lessons that are not in time_slot_ids)
     if schedule:
-        await process_diff_for_hours(repository, group, schedule, time_slot_ids)
+        await process_diff_for_hours(repository, group, schedule)
     else:
         schedule = await repository.schedule.create(schedule_create)
     await process_new_hours(repository, group, schedule.id, time_slot_ids)
@@ -41,7 +43,6 @@ async def process_diff_for_hours(
     repository: RepositoryFactory,
     group: GroupSchema,
     schedule: Schedule,
-    time_slot_ids: dict[int, int],
 ) -> None:
     existing_hours = await repository.lesson.get(group_id=group.info.id, date=schedule.date)
     subgroups = set(lesson.subgroup for lesson in existing_hours)
@@ -104,12 +105,15 @@ async def process_lesson(
     await repository.lesson.merge(lesson_create)
 
 
-async def create_group(repository: RepositoryFactory, group: GroupSchema) -> Group:
+async def create_group(
+    repository: RepositoryFactory, area: AreaSchema, group: GroupSchema
+) -> Group:
     group_create = GroupCreate(
         id=group.info.id,
         name=group.info.name,
         full_name=group.info.full_name,
         course=group.course,
+        area_name=area.info.name,
     )
     created_group = await repository.group.insert_or_update(group_create, join_students=True)
     return created_group

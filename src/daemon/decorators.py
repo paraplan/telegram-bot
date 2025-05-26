@@ -8,6 +8,7 @@ from src.bot.utils.notification import send_notification
 from src.database import RepositoryFactory
 from src.database.models import Lesson
 from src.database.schemas import ScheduleType
+from src.schedule_parser.area import AreaSchema
 from src.schedule_parser.group import GroupSchema
 
 T = TypeVar("T")
@@ -21,6 +22,7 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
     @functools.wraps(func)
     async def wrapper(
         repository: RepositoryFactory,
+        area: AreaSchema,
         group: GroupSchema,
         schedule_date: datetime.date,
         *args: Any,
@@ -29,7 +31,7 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
         old_lessons = await repository.lesson.get(group_id=group.info.id, date=schedule_date)
         old_lesson_ids = sorted(map(lambda x: x.id, old_lessons))
 
-        result = await func(repository, group, schedule_date, *args, **kwargs)
+        result = await func(repository, area, group, schedule_date, *args, **kwargs)
 
         new_lessons = await repository.lesson.get(group_id=group.info.id, date=schedule_date)
         new_lesson_ids = sorted(map(lambda x: x.id, new_lessons))
