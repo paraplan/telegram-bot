@@ -1,5 +1,6 @@
 import os
 from typing import Final, Literal
+from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 
@@ -19,8 +20,8 @@ POSTGRES_DSN: Final[str] = (
     f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}?prepared_statement_cache_size=500"
 )
 
-
-DAEMON_INTERVAL: Final[int] = int(os.getenv("DAEMON_INTERVAL", 600))
+TIMEZONE: Final[ZoneInfo] = ZoneInfo(os.getenv("TIMEZONE", "Europe/Moscow"))
+DAEMON_CRONTAB: Final[str] = os.getenv("DAEMON_CRONTAB", "*/10 12-18 * * *")
 
 ValidLogLevels = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 
