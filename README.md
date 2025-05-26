@@ -34,3 +34,10 @@ uv run alembic upgrade head
 ```zsh
 uv run python -m src.bot # либо src.daemon, src.schedule_parser
 ```
+
+## Как создать новые миграции?
+
+```zsh
+uv run alembic revision --autogenerate -m "message"
+uv run alembic upgrade head
+```
