@@ -14,6 +14,7 @@ class GroupCreate(BaseModel):
     name: str
     full_name: str
     course: int
+    area: int
 
 
 class GroupRepository(BaseRepository[Group]):

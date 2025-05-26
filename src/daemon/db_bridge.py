@@ -54,4 +54,4 @@ async def process_area(
 ) -> None:
     for group in area.groups:
         logger.debug(f"Processing group {group.info.full_name}")
-        await process_group(repository, group, schedule_date, time_slot_ids)
+        await process_group(repository, area, group, schedule_date, time_slot_ids)
