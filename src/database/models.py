@@ -43,7 +43,7 @@ class Group(Base):
     name: Mapped[str] = mapped_column(String)
     full_name: Mapped[str] = mapped_column(String)
     course: Mapped[int] = mapped_column(Integer)
-    area: Mapped[int] = mapped_column(Integer, server_default=func.text("1"))
+    area_name: Mapped[str] = mapped_column(String, server_default=func.text("ССО"))
 
     # Relationships
     users: Mapped[List["User"]] = relationship(back_populates="group")

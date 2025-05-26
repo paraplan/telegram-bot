@@ -113,7 +113,7 @@ async def create_group(
         name=group.info.name,
         full_name=group.info.full_name,
         course=group.course,
-        area=area.info.id,
+        area_name=area.info.name,
     )
     created_group = await repository.group.insert_or_update(group_create, join_students=True)
     return created_group
