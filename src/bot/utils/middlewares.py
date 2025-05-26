@@ -1,12 +1,12 @@
 from telegrinder import ABCMiddleware, Context, Message
 
 from src.database import RepositoryFactory
-from src.env import MODE, STAGE_ALLOWED_USERS
+from src.env import LIST_ALLOWED_USERS
 
 
-class StageMiddleware(ABCMiddleware[Message]):
+class AllowedUsersMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
-        if MODE == "STAGE" and event.chat.id not in STAGE_ALLOWED_USERS:
+        if LIST_ALLOWED_USERS and event.chat.id not in LIST_ALLOWED_USERS:
             return False
         return True
 

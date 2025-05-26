@@ -26,7 +26,7 @@ DAEMON_CRONTAB: Final[str] = os.getenv("DAEMON_CRONTAB", "*/10 12-18 * * *")
 ValidLogLevels = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 
 LOGGER_LEVEL: Final[ValidLogLevels] = os.getenv("LOGGER_LEVEL", "INFO")  # type: ignore
-MODE: Final[Literal["RELEASE", "DEV", "STAGE"]] = os.getenv("MODE", "RELEASE")  # type: ignore
-STAGE_ALLOWED_USERS: Final[list[int]] = list(
-    map(int, os.getenv("STAGE_ALLOWED_USERS", "").split(","))
+ALLOWED_USERS: Final[str | None] = os.getenv("ALLOWED_USERS")
+LIST_ALLOWED_USERS: Final[list[int]] = (
+    list(map(int, ALLOWED_USERS.split(","))) if ALLOWED_USERS else []
 )

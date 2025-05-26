@@ -3,7 +3,7 @@ import locale
 from telegrinder import API, Dispatch, HTMLFormatter, Telegrinder, Token, WaiterMachine
 from telegrinder.modules import logger
 
-from src.bot.utils.middlewares import StageMiddleware, UserRegisterMiddleware
+from src.bot.utils.middlewares import AllowedUsersMiddleware, UserRegisterMiddleware
 from src.env import BOT_TOKEN, LOGGER_LEVEL
 
 logger.set_level(LOGGER_LEVEL)
@@ -16,5 +16,5 @@ wm = WaiterMachine(dp)
 
 formatter = HTMLFormatter
 
-bot.on.message.register_middleware()(cls=StageMiddleware)
+bot.on.message.register_middleware()(cls=AllowedUsersMiddleware)
 bot.on.message.register_middleware()(cls=UserRegisterMiddleware)
