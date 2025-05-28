@@ -16,10 +16,9 @@ async def handle_group(message: Message, user: User, repository: RepositoryFacto
         await message.answer("🚫 Ошибка: Группы не найдены")
         logger.error("No groups found, perhaps the database is empty (daemon not running yet)?")
         return
-
-    groups, _ = await choose_area(message, groups)
-    groups, _ = await choose_course(message, groups)
-    chosen, choice_id = await choose_group(message, groups, user)
+    groups, _ = await choose_area(message, groups, user.group.area_name if user.group else None)
+    groups, _ = await choose_course(message, groups, user.group.course if user.group else None)
+    chosen, choice_id = await choose_group(message, groups, user.group.id if user.group else None)
 
     await repository.user.update_group(user_id=message.from_user.id, group_id=int(chosen))
     await repository.user_settings.update_subgroup(user_id=message.from_user.id, subgroup=1)
@@ -33,9 +32,12 @@ async def handle_group(message: Message, user: User, repository: RepositoryFacto
     )
 
 
-async def choose_area(message: Message, groups: list[Group]) -> tuple[list[Group], int]:
+async def choose_area(
+    message: Message,
+    groups: list[Group],
+    user_group_area: str | None,
+) -> tuple[list[Group], int]:
     """Подменю выбора площадки"""
-    DEFAULT_AREA = "ССО"
     choice_area = Choice(
         message="🏢 Выберите площадку",
         ready_text="Далее ➡️",
@@ -44,8 +46,13 @@ async def choose_area(message: Message, groups: list[Group]) -> tuple[list[Group
         waiter_machine=wm,
     )
     areas = sorted(set(map(lambda x: x.area_name, groups)))
-    for area in areas:
-        choice_area.add_option(area, f"{area}", f"✅{area}", is_picked=area == DEFAULT_AREA)
+    for index, area in enumerate(areas):
+        is_picked = False
+        if user_group_area:
+            is_picked = user_group_area == area
+        else:
+            is_picked = index == 0
+        choice_area.add_option(area, f"{area}", f"✅{area}", is_picked=is_picked)
     chosen_area, choice_area_id = await choice_area.wait(
         CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api
     )
@@ -57,9 +64,12 @@ async def choose_area(message: Message, groups: list[Group]) -> tuple[list[Group
     return filtered_groups, choice_area_id
 
 
-async def choose_course(message: Message, groups: list[Group]) -> tuple[list[Group], int]:
+async def choose_course(
+    message: Message,
+    groups: list[Group],
+    user_group_course: int | None,
+) -> tuple[list[Group], int]:
     """Подменю выбора курса"""
-    DEFAULT_COURSE = 1
     choice_course = Choice(
         message="🎓 Выберите курс",
         ready_text="Далее ➡️",
@@ -68,10 +78,13 @@ async def choose_course(message: Message, groups: list[Group]) -> tuple[list[Gro
         waiter_machine=wm,
     )
     courses = sorted(set(map(lambda x: x.course, groups)))
-    for course in courses:
-        choice_course.add_option(
-            course, f"{course}", f"✅{course}", is_picked=course == DEFAULT_COURSE
-        )
+    for index, course in enumerate(courses):
+        is_picked = False
+        if user_group_course:
+            is_picked = user_group_course == course
+        else:
+            is_picked = index == 0
+        choice_course.add_option(course, f"{course}", f"✅{course}", is_picked=is_picked)
     chosen_course, choice_course_id = await choice_course.wait(
         CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api
     )
@@ -83,7 +96,11 @@ async def choose_course(message: Message, groups: list[Group]) -> tuple[list[Gro
     return filtered_groups, choice_course_id
 
 
-async def choose_group(message: Message, groups: list[Group], user: User) -> tuple[str, int]:
+async def choose_group(
+    message: Message,
+    groups: list[Group],
+    user_group_id: int | None,
+) -> tuple[str, int]:
     """Подменю выбора группы"""
     group_choice = Choice(
         message="👥 Выберите группу",
@@ -95,11 +112,10 @@ async def choose_group(message: Message, groups: list[Group], user: User) -> tup
     group_ids = map(lambda x: x.id, groups)
     for index, group in enumerate(groups):
         is_picked = False
-        if user.group_id and user.group_id in group_ids:
-            is_picked = user.group_id == group.id
+        if user_group_id and user_group_id in group_ids:
+            is_picked = user_group_id == group.id
         else:
-            if index == 0:
-                is_picked = True
+            is_picked = index == 0
         group_choice.add_option(
             str(group.id), f"{group.name}", f"✅{group.name}", is_picked=is_picked
         )
