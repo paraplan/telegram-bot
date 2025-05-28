@@ -80,7 +80,7 @@ async def choose_course(
     courses = sorted(set(map(lambda x: x.course, groups)))
     for index, course in enumerate(courses):
         is_picked = False
-        if user_group_course:
+        if user_group_course and user_group_course in courses:
             is_picked = user_group_course == course
         else:
             is_picked = index == 0
@@ -109,9 +109,9 @@ async def choose_group(
         chat_id=message.chat.id,
         waiter_machine=wm,
     )
-    group_ids = map(lambda x: x.id, groups)
+    group_ids = list(map(lambda x: x.id, groups))
     for index, group in enumerate(groups):
-        is_picked = False
+        is_picked: bool = False
         if user_group_id and user_group_id in group_ids:
             is_picked = user_group_id == group.id
         else:
