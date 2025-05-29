@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+from typing import Any
 
 from croniter import croniter
 from loguru import logger
@@ -15,7 +16,7 @@ async def start_daemon():
     base_time = datetime.datetime.now(tz=TIMEZONE)
     cron = croniter(DAEMON_CRONTAB, base_time)
     while True:
-        next_time: datetime.datetime = cron.get_next(datetime.datetime)
+        next_time: Any = cron.get_next(datetime.datetime)
         logger.info(f"Next crontab time: {next_time}")
         seconds_to_sleep = (next_time - datetime.datetime.now(tz=TIMEZONE)).total_seconds()
         logger.info(f"Daemon will go to sleep for {seconds_to_sleep:.2f} seconds")
