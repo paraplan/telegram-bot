@@ -2,15 +2,14 @@ from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Checkbox, Dispatch, Message
 from telegrinder.rules import Command
 
 from src.bot.client import wm
-from src.database import RepositoryFactory
-from src.database.models import User, UserSettings
+from src.bot.utils.nodes import DBRepository, UserSettingsDB
 
 dp = Dispatch()
 
 
 @dp.message(Command("settings"))
 async def handle_settings(
-    message: Message, user: User, user_settings: UserSettings, repository: RepositoryFactory
+    message: Message, user_settings: UserSettingsDB, repository: DBRepository
 ):
     choice = Checkbox(
         message="⚙️ Настройки уведомлений",

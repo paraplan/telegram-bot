@@ -3,14 +3,14 @@ from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Choice, Dispatch, Message
 from telegrinder.rules import Command
 
 from src.bot.client import wm
-from src.database import RepositoryFactory
-from src.database.models import Group, User
+from src.bot.utils.nodes import DBRepository, UserDB
+from src.database.models import Group
 
 dp = Dispatch()
 
 
 @dp.message(Command("group"))
-async def handle_group(message: Message, user: User, repository: RepositoryFactory):
+async def handle_group(message: Message, user: UserDB, repository: DBRepository):
     groups = await repository.group.get_all()
     if len(groups) == 0:
         await message.answer("🚫 Ошибка: Группы не найдены")
