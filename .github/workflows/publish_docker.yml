@@ -1,6 +1,9 @@
 name: Publish Docker Images
 
 on:
+  workflow_run:
+    workflows: ["Lint and check types"]
+    types: [completed]
   push:
     branches: ["main", "dev"]
   pull_request:
