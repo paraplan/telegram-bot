@@ -2,11 +2,10 @@ name: Publish Docker Images
 
 on:
   workflow_run:
-    workflows:
-      - "Lint and check types"
-    types:
-      - completed
-    branches: ["*"]
+    push:
+      branches: ["main", "dev"]
+    pull_request:
+      branches: ["main", "dev"]
 
 permissions:
   contents: read
