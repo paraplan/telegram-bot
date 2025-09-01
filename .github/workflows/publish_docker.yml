@@ -6,6 +6,7 @@ on:
       - "Lint and check types"
     types:
       - completed
+    branches: ["*"]
 
 permissions:
   contents: read
