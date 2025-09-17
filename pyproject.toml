@@ -3,7 +3,7 @@ name = "paraplan"
 version = "2.4.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "aiohttp>=3.10.5",
     "orjson>=3.10.7",
