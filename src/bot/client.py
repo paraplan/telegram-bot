@@ -6,7 +6,7 @@ from telegrinder.modules import setup_logger
 from src.bot.utils.middlewares import AllowedUsersMiddleware
 from src.env import BOT_TOKEN, LOGGER_LEVEL
 
-setup_logger(format=LOGGER_LEVEL)
+setup_logger(level=LOGGER_LEVEL)
 locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
 api = API(token=Token(BOT_TOKEN))
