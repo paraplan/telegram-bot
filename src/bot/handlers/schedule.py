@@ -68,8 +68,8 @@ async def handle_week(
 
 
 DATE_KEYBOARD = InlineKeyboard()
-DATE_KEYBOARD.add(InlineButton("Расписание на сегодня", callback_data="today"))
-DATE_KEYBOARD.add(InlineButton("Расписание на завтра", callback_data="tomorrow"))
+DATE_KEYBOARD.add(InlineButton("На сегодня", callback_data="today"))
+DATE_KEYBOARD.add(InlineButton("На завтра", callback_data="tomorrow"))
 DATE_KEYBOARD.row()
 DATE_KEYBOARD.add(InlineButton("Отменить ввод даты", callback_data="cancel"))
 
