@@ -7,9 +7,9 @@ from loguru import logger
 
 from src.daemon.db_bridge import update_schedules
 from src.daemon.schedule_fetcher import get_schedules_for_updating
-from src.env import DAEMON_CRONTAB, LOGGER_LEVEL, TIMEZONE
+from src.env import DAEMON_CRONTAB, DAEMON_LOGGER_LEVEL, TIMEZONE
 
-logger = logger.bind(name="daemon", level=LOGGER_LEVEL)
+logger = logger.bind(name="daemon", level=DAEMON_LOGGER_LEVEL)
 
 
 async def start_daemon():

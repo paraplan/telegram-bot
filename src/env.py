@@ -1,5 +1,5 @@
 import os
-from typing import Final, Literal
+from typing import Final
 from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
@@ -23,9 +23,8 @@ POSTGRES_DSN: Final[str] = (
 TIMEZONE: Final[ZoneInfo] = ZoneInfo(os.getenv("TIMEZONE", "Europe/Moscow"))
 DAEMON_CRONTAB: Final[str] = os.getenv("DAEMON_CRONTAB", "*/10 12-18 * * *")
 
-ValidLogLevels = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
+DAEMON_LOGGER_LEVEL: Final[str] = os.getenv("DAEMON_LOGGER_LEVEL", "DEBUG")
 
-LOGGER_LEVEL: Final[ValidLogLevels] = os.getenv("LOGGER_LEVEL", "INFO")  # type: ignore
 ALLOWED_USERS: Final[str | None] = os.getenv("ALLOWED_USERS")
 LIST_ALLOWED_USERS: Final[list[int]] = (
     list(map(int, ALLOWED_USERS.split(","))) if ALLOWED_USERS else []
