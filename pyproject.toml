@@ -19,10 +19,11 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pre-commit>=4.1.0", "pyright>=1.1.392", "ruff>=0.9.3"]
-
-[tool.uv.sources]
-telegrinder = { git = "https://github.com/timoniq/telegrinder.git" }
+dev = [
+    "pre-commit>=4.1.0",
+    "pyright>=1.1.392",
+    "ruff>=0.9.3",
+]
 
 [tool.pyright]
 venvPath = "."
@@ -32,3 +33,6 @@ venv = ".venv"
 lint.select = ["I", "E", "F", "B", "Q"]
 lint.ignore = ["B008"]
 line-length = 99
+
+[tool.ty.src]
+exclude = [".venv"]
