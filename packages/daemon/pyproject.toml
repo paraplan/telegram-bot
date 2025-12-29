@@ -1,0 +1,19 @@
+[project]
+name = "daemon"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "VodoGamer", email = "vodoplayyt1@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "loguru>=0.7.3",
+]
+
+[project.scripts]
+daemon = "daemon:main"
+
+[build-system]
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"

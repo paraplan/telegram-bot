@@ -16,6 +16,12 @@ dependencies = [
     "sqlalchemy>=2.0.37",
     "loguru>=0.7.3",
     "croniter>=6.0.0",
+
+    "daemon",
+    "bot",
+    "env",
+    "database",
+    "schedule_parser"
 ]
 
 [dependency-groups]
@@ -24,6 +30,18 @@ dev = [
     "pyright>=1.1.392",
     "ruff>=0.9.3",
 ]
+
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+daemon = { workspace = true }
+bot = { workspace = true }
+env = { workspace = true }
+database = { workspace = true }
+schedule_parser = { workspace = true }
+
 
 [tool.pyright]
 venvPath = "."

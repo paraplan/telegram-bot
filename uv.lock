@@ -6,6 +6,16 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
+[manifest]
+members = [
+    "bot",
+    "daemon",
+    "database",
+    "env",
+    "paraplan",
+    "schedule-parser",
+]
+
 [[package]]
 name = "aiodns"
 version = "3.6.1"
@@ -172,6 +182,11 @@ wheels = [
 ]
 
 [[package]]
+name = "bot"
+version = "0.1.0"
+source = { editable = "packages/bot" }
+
+[[package]]
 name = "certifi"
 version = "2025.11.12"
 source = { registry = "https://pypi.org/simple" }
@@ -263,6 +278,22 @@ wheels = [
 ]
 
 [[package]]
+name = "daemon"
+version = "0.1.0"
+source = { editable = "packages/daemon" }
+dependencies = [
+    { name = "loguru" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "loguru", specifier = ">=0.7.3" }]
+
+[[package]]
+name = "database"
+version = "0.1.0"
+source = { editable = "packages/database" }
+
+[[package]]
 name = "distlib"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -270,6 +301,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/96/8e/709914eb2b5749865
 wheels = [
     { url = "https://files.pythonhosted.org/packages/33/6b/e0547afaf41bf2c42e52430072fa5658766e3d65bd4b03a563d1b6336f57/distlib-0.4.0-py2.py3-none-any.whl", hash = "sha256:9659f7d87e46584a30b5780e43ac7a2143098441670ff0a49d5f9034c54a6c16", size = 469047, upload-time = "2025-07-17T16:51:58.613Z" },
 ]
+
+[[package]]
+name = "env"
+version = "0.1.0"
+source = { editable = "packages/env" }
 
 [[package]]
 name = "envparse"
@@ -660,12 +696,17 @@ dependencies = [
     { name = "aiohttp" },
     { name = "alembic" },
     { name = "asyncpg" },
+    { name = "bot" },
     { name = "croniter" },
+    { name = "daemon" },
+    { name = "database" },
+    { name = "env" },
     { name = "jinja2" },
     { name = "loguru" },
     { name = "orjson" },
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "schedule-parser" },
     { name = "sqlalchemy" },
     { name = "telegrinder" },
 ]
@@ -682,12 +723,17 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.10.5" },
     { name = "alembic", specifier = ">=1.14.0" },
     { name = "asyncpg", specifier = ">=0.30.0" },
+    { name = "bot", editable = "packages/bot" },
     { name = "croniter", specifier = ">=6.0.0" },
+    { name = "daemon", editable = "packages/daemon" },
+    { name = "database", editable = "packages/database" },
+    { name = "env", editable = "packages/env" },
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "orjson", specifier = ">=3.10.7" },
     { name = "pydantic", specifier = ">=2.9.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "schedule-parser", editable = "packages/schedule_parser" },
     { name = "sqlalchemy", specifier = ">=2.0.37" },
     { name = "telegrinder", specifier = ">=0.2.2" },
 ]
@@ -1018,6 +1064,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/9c/896c862e13886fae2af961bef3e6312db9ebc6adc2b156fe95e615dee8c1/ruff-0.14.10-py3-none-win_amd64.whl", hash = "sha256:466297bd73638c6bdf06485683e812db1c00c7ac96d4ddd0294a338c62fdc154", size = 14661283, upload-time = "2025-12-18T19:29:30.16Z" },
     { url = "https://files.pythonhosted.org/packages/74/31/b0e29d572670dca3674eeee78e418f20bdf97fa8aa9ea71380885e175ca0/ruff-0.14.10-py3-none-win_arm64.whl", hash = "sha256:e51d046cf6dda98a4633b8a8a771451107413b0f07183b2bef03f075599e44e6", size = 13729839, upload-time = "2025-12-18T19:28:48.636Z" },
 ]
+
+[[package]]
+name = "schedule-parser"
+version = "0.1.0"
+source = { editable = "packages/schedule_parser" }
 
 [[package]]
 name = "six"
