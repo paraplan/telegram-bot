@@ -25,7 +25,7 @@ class UserSettings(Base):
     __tablename__ = "user_settings"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
     subgroup: Mapped[int] = mapped_column(SmallInteger, server_default=func.text("1"))
     is_notify: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
     is_notify_vacation: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
