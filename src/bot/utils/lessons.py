@@ -18,7 +18,8 @@ class GroupedSeminar(BaseModel):
         # При выборе подгруппы 1 или 2 показываем общие (0) + выбранную подгруппу
         if sub_group != 0:
             # Если self общая (0) или соответствует выбранной подгруппе - оставляем self
-            # Если second соответствует выбранной подгруппе, а self нет (и self не общая) - берём second
+            # Если second соответствует выбранной подгруппе, а self нет (и self не общая)
+            # -- берём second
             if (
                 self.sub_group != 0
                 and self.sub_group != sub_group
