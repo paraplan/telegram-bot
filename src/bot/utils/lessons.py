@@ -14,8 +14,16 @@ class GroupedSeminar(BaseModel):
     cabinet: str | None
 
     def merge(self, second: Self, sub_group: int = 0) -> Self:
+        # sub_group 0 = общие пары, 1 = первая подгруппа, 2 = вторая подгруппа
+        # При выборе подгруппы 1 или 2 показываем общие (0) + выбранную подгруппу
         if sub_group != 0:
-            if self.sub_group != sub_group and second.sub_group == sub_group:
+            # Если self общая (0) или соответствует выбранной подгруппе - оставляем self
+            # Если second соответствует выбранной подгруппе, а self нет (и self не общая) - берём second
+            if (
+                self.sub_group != 0
+                and self.sub_group != sub_group
+                and (second.sub_group == sub_group or second.sub_group == 0)
+            ):
                 return second
         else:
             if self.name == second.name:
@@ -44,14 +52,24 @@ def convert_schedule_to_seminars(schedule: list[Lesson]) -> SeminarsType:
 
 
 def _group_seminar(items: list[GroupedSeminar], sub_group: int = 0) -> tuple[GroupedSeminar, bool]:
-    result = items[0]
+    # sub_group 0 = общие пары, 1 = первая подгруппа, 2 = вторая подгруппа
+    # При выборе подгруппы показываем общие (0) + выбранную подгруппу
     is_schedule_subgrouped = False
     items_subgroups = set((item.sub_group for item in items if item.name != "Физкультура"))
-    if len(items_subgroups) > 1:
+
+    # Если есть пары для разных подгрупп (1 и 2), расписание разделено по подгруппам
+    if 1 in items_subgroups and 2 in items_subgroups:
         is_schedule_subgrouped = True
-    if len(items_subgroups) > 2:
-        sub_group = 0
-        is_schedule_subgrouped = True
+
+    # Фильтруем items: оставляем общие (0) и соответствующие выбранной подгруппе
+    if sub_group != 0:
+        filtered_items = [
+            item for item in items if item.sub_group == 0 or item.sub_group == sub_group
+        ]
+        if filtered_items:
+            items = filtered_items
+
+    result = items[0]
     for item in items:
         if item == result:
             continue
@@ -96,18 +114,19 @@ def _process_cabinets(
 def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: int = 1):
     pairs: dict[int, PairModel] = dict()
     seminars_keys = list(seminars.keys())
-    is_schedule_subgrouped = False if sub_group != 0 else True
+    is_schedule_subgrouped = False
     i: int = seminars_keys[0]
     while i <= seminars_keys[-2]:
         seminar, next_seminar = seminars[i], seminars[i + 1]
-        if (
-            sub_group == 1
-            and seminar.sub_group != sub_group
-            and next_seminar.sub_group != sub_group
-        ):
-            i += 2
-            is_schedule_subgrouped = True
-            continue
+        # Пропускаем пары, которые не относятся к выбранной подгруппе и не являются общими
+        if sub_group != 0:
+            # Проверяем, нужно ли пропустить эту пару
+            seminar_matches = seminar.sub_group == 0 or seminar.sub_group == sub_group
+            next_matches = next_seminar.sub_group == 0 or next_seminar.sub_group == sub_group
+            if not seminar_matches and not next_matches:
+                i += 2
+                is_schedule_subgrouped = True
+                continue
         if seminar.number % 2 == 0:
             if seminar.number == 0:
                 name = seminar.name
