@@ -10,8 +10,8 @@ erDiagram
     day_type ||--o{ time_slot : ""
 
     user {
-        int id PK
-        int group_id FK
+        bigint id PK
+        int group_id FK "nullable"
         datetime created_at
     }
 
@@ -30,6 +30,7 @@ erDiagram
         string name
         string full_name
         int course
+        string area_name "default 'ССО'"
     }
 
     schedule {
