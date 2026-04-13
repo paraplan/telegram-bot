@@ -44,7 +44,9 @@ async def handle_notifications(
         is_picked=user_settings.is_notify_session,
     )
 
-    chosen, choice_id = await choice.wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api)
+    chosen, choice_id = await choice.wait(
+        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
+    )
 
     for key, value in chosen.items():
         params = {key: bool(value)}

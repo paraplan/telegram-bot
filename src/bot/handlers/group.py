@@ -54,7 +54,7 @@ async def choose_area(
             is_picked = index == 0
         choice_area.add_option(area, f"{area}", f"✅{area}", is_picked=is_picked)
     chosen_area, choice_area_id = await choice_area.wait(
-        CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api
+        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
     )
     await message.ctx_api.delete_message(
         chat_id=message.chat.id,
@@ -86,7 +86,7 @@ async def choose_course(
             is_picked = index == 0
         choice_course.add_option(course, f"{course}", f"✅{course}", is_picked=is_picked)
     chosen_course, choice_course_id = await choice_course.wait(
-        CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api
+        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
     )
     await message.ctx_api.delete_message(
         chat_id=message.chat.id,
@@ -119,5 +119,7 @@ async def choose_group(
         group_choice.add_option(
             str(group.id), f"{group.name}", f"✅{group.name}", is_picked=is_picked
         )
-    chosen, choice_id = await group_choice.wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api)
+    chosen, choice_id = await group_choice.wait(
+        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
+    )
     return chosen, choice_id

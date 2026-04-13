@@ -3,13 +3,14 @@ name = "paraplan"
 version = "2.4.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "aiohttp>=3.10.5",
     "orjson>=3.10.7",
     "pydantic>=2.9.0",
     "python-dotenv>=1.0.1",
-    "telegrinder>=0.2.2",
+    "telegrinder>=1.0.0rc3",
+    "rnet>=3.0.0rc22",
     "jinja2>=3.1.4",
     "asyncpg>=0.30.0",
     "alembic>=1.14.0",

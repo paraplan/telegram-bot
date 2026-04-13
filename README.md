@@ -1,43 +1,28 @@
-# Параплан - расписание занятий для студентов Витебского государственного колледжа электротехники.
+# Paraplan
 
-## Как запустить сервер?
+The most convenient way for students of the Vitebsk State College of Electrical Engineering to get their class schedule.
 
-```zsh
-cp .env.example .env
-vim .env
-docker compose up -d
+This project is written in Python and is a modern Telegram bot built with [telegrinder](https://github.com/timoniq/telegrinder). PostgreSQL is used as the database.
+
+## Deployment
+
+1. Clone this repo anywhere
+2. Create the .env file from the example:
+```shell
+cp .env{.example,}
 ```
+3. Run `docker compose up --build -d`
 
-## Как запустить локально?
+## Development
 
-1. Установить все зависимости
+We strongly recommend using the [Nix](https://nixos.org/download/) package manager for development. Nix will install all the necessary dependencies for you, ensuring you have the same Python version as other contributors.
 
--   [postgresql](https://www.postgresql.org/download/)
--   [uv](https://docs.astral.sh/uv)
+> [!NOTE]
+> However, you can also get by with a locally installed [uv](https://docs.astral.sh/uv/#installation) package manager, but in that case, be prepared to troubleshoot issues manually :)
 
-2. Скопировать и изменить .env
+Steps to set up the development environment:
 
-```zsh
-cp .env.example .env
-vim .env
-```
-
-3. Установить пакеты и сделать миграции
-
-```zsh
-uv sync
-uv run alembic upgrade head
-```
-
-4. Запустить нужный модуль
-
-```zsh
-uv run python -m src.bot # либо src.daemon, src.schedule_parser
-```
-
-## Как создать новые миграции?
-
-```zsh
-uv run alembic revision --autogenerate -m "message"
-uv run alembic upgrade head
-```
+1. Run `nix develop`
+2. Run `make` to install Python dependencies
+3. Set up a PostgreSQL database and create the .env file from the example: `cp .env{.example,}`
+4. Check out the `Makefile` for available commands

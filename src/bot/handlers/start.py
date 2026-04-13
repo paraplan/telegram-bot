@@ -3,14 +3,13 @@ from telegrinder.rules import Command
 from telegrinder.types import ReplyKeyboardRemove
 
 from src.bot.templates import render_template
-from src.bot.utils.nodes import UserDB, UserSettingsDB
+from src.bot.utils.nodes import DBRepository
 
 dp = Dispatch()
 
 
 @dp.message(Command("start"))
-async def handle_start(message: Message, user: UserDB, user_settings: UserSettingsDB):
-    # Please, don't remove user and user_settings from arguments.
-    # It's registration process.
-    # For more information, please, see how these nodes are working.
+async def handle_start(message: Message, database: DBRepository):
+    user = await database.user.select_or_insert(message.from_user.id)
+    await database.user_settings.select_or_insert(user.id)
     await message.answer(render_template("hello.j2"), reply_markup=ReplyKeyboardRemove(True))

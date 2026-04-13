@@ -85,8 +85,8 @@ async def handle_date(
     request_message_id = request_message.unwrap().message_id
 
     _, event, _ = await wm.wait_many(
-        MESSAGE_FROM_USER(message.from_user.id),
-        CALLBACK_QUERY_FOR_MESSAGE(request_message_id),
+        MESSAGE_FROM_USER(dp.message, message.from_user.id),
+        CALLBACK_QUERY_FOR_MESSAGE(dp.callback_query, request_message_id),
         release=Regex(r"\d{2}\.\d{2}\.\d{4}") | CallbackDataEq(["cancel", "today", "tomorrow"]),
     )
 
