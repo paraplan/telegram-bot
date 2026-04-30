@@ -26,7 +26,7 @@ lint:
 	$(PYTHON) -m ruff check src
 
 typecheck:
-	$(PYTHON) -m pyright src
+	$(PYTHON) -m basedpyright src
 
 format:
 	$(PYTHON) -m ruff format .

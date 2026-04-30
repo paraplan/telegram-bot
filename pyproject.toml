@@ -20,17 +20,15 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pyright>=1.1.392",
+    "basedpyright>=1.39.3",
     "ruff>=0.9.3",
 ]
 
-[tool.pyright]
+[tool.basedpyright]
 venvPath = "."
 venv = ".venv"
 typeCheckingMode = "standard"
 
 [tool.ruff]
-lint.select = ["I", "E", "F", "B", "Q"]
-lint.ignore = ["B008"]
 line-length = 99
 
