@@ -1,7 +1,6 @@
-from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Checkbox, Dispatch, Message
+from telegrinder import Dispatch, Message
 from telegrinder.rules import Command
 
-from src.bot.client import wm
 from src.bot.utils.nodes import DBRepository, UserSettingsDB
 
 dp = Dispatch()
@@ -11,42 +10,39 @@ dp = Dispatch()
 async def handle_notifications(
     message: Message, user_settings: UserSettingsDB, repository: DBRepository
 ):
-    choice = Checkbox(
+    checkbox = dp.checkbox(
         message="⚙️ Настройки уведомлений",
         ready_text="⚙️ Сохранить",
         max_in_row=2,
         chat_id=message.chat.id,
-        waiter_machine=wm,
     )
 
-    choice.add_option(
+    checkbox.add_option(
         "is_notify",
         "🔔 Уведомления ❌",
         "🔔 Уведомления ✅",
         is_picked=user_settings.is_notify,
     )
-    choice.add_option(
+    checkbox.add_option(
         "is_notify_vacation",
         "🏖️ Каникулы ❌",
         "🏖️ Каникулы ✅",
         is_picked=user_settings.is_notify_vacation,
     )
-    choice.add_option(
+    checkbox.add_option(
         "is_notify_practice",
         "💻 Практика ❌",
         "💻 Практика ✅",
         is_picked=user_settings.is_notify_practice,
     )
-    choice.add_option(
+    checkbox.add_option(
         "is_notify_session",
         "📚 Сессия ❌",
         "📚 Сессия ✅",
         is_picked=user_settings.is_notify_session,
     )
 
-    chosen, choice_id = await choice.wait(
-        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
-    )
+    chosen, choice_id = await checkbox.wait(message.api)
 
     for key, value in chosen.items():
         params = {key: bool(value)}

@@ -12,7 +12,7 @@ from telegrinder import (
 )
 from telegrinder.rules import CallbackDataEq, Command, Regex
 
-from src.bot.client import formatter, wm
+from src.bot.client import formatter
 from src.bot.utils.nodes import DBRepository, UserDB, UserSettingsDB
 from src.bot.utils.schedule import render_schedule_for_date
 
@@ -78,15 +78,16 @@ DATE_KEYBOARD.add(InlineButton("Отменить ввод даты", callback_da
 async def handle_date(
     message: Message, user: UserDB, user_settings: UserSettingsDB, repository: DBRepository
 ):
-    request_message = await message.answer(
-        "🗓️ Напишите дату в формате DD.MM.YYYY или выберите дату из списка",
-        reply_markup=DATE_KEYBOARD.get_markup(),
-    )
-    request_message_id = request_message.unwrap().message_id
+    request_message = (
+        await message.answer(
+            "🗓️ Напишите дату в формате DD.MM.YYYY или выберите дату из списка",
+            reply_markup=DATE_KEYBOARD.get_markup(),
+        )
+    ).unwrap()
 
-    _, event, _ = await wm.wait_many(
-        MESSAGE_FROM_USER(dp.message, message.from_user.id),
-        CALLBACK_QUERY_FOR_MESSAGE(dp.callback_query, request_message_id),
+    _, event, _ = await dp.wait_many(
+        MESSAGE_FROM_USER(message.from_user.id),
+        CALLBACK_QUERY_FOR_MESSAGE(request_message.message_id),
         release=Regex(r"\d{2}\.\d{2}\.\d{4}") | CallbackDataEq(["cancel", "today", "tomorrow"]),
     )
 
@@ -101,9 +102,9 @@ async def handle_date(
             elif callback_data == "tomorrow":
                 date = message.date + datetime.timedelta(days=1)
             else:
-                await message.ctx_api.edit_message_text(
+                await message.api.edit_message_text(
                     chat_id=message.chat_id,
-                    message_id=request_message_id,
+                    message_id=request_message.message_id,
                     text="ℹ️ Ввод даты отменен",
                 )
                 return
@@ -111,9 +112,9 @@ async def handle_date(
     text, keyboard = await render_schedule_for_date(
         repository, date, user.group, user_settings.subgroup, is_week=True
     )
-    await message.ctx_api.edit_message_text(
+    await message.api.edit_message_text(
         chat_id=message.chat_id,
-        message_id=request_message_id,
+        message_id=request_message.message_id,
         text=text,
         parse_mode=formatter.PARSE_MODE,
         reply_markup=keyboard,

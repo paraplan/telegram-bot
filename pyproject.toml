@@ -9,8 +9,7 @@ dependencies = [
     "orjson>=3.10.7",
     "pydantic>=2.9.0",
     "python-dotenv>=1.0.1",
-    "telegrinder>=1.0.0rc3",
-    "rnet>=3.0.0rc22",
+    "telegrinder>=1.0.1",
     "jinja2>=3.1.4",
     "asyncpg>=0.30.0",
     "alembic>=1.14.0",
@@ -28,11 +27,10 @@ dev = [
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+typeCheckingMode = "standard"
 
 [tool.ruff]
 lint.select = ["I", "E", "F", "B", "Q"]
 lint.ignore = ["B008"]
 line-length = 99
 
-[tool.ty.src]
-exclude = [".venv"]

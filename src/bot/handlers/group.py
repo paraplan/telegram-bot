@@ -1,8 +1,7 @@
 from loguru import logger
-from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Choice, Dispatch, Message
+from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Dispatch, Message
 from telegrinder.rules import Command
 
-from src.bot.client import wm
 from src.bot.utils.nodes import DBRepository, UserDB
 from src.database.models import Group
 
@@ -38,12 +37,11 @@ async def choose_area(
     user_group_area: str | None,
 ) -> tuple[list[Group], int]:
     """Подменю выбора площадки"""
-    choice_area = Choice(
+    choice_area = dp.choice(
         message="🏢 Выберите площадку",
         ready_text="Далее ➡️",
         max_in_row=2,
         chat_id=message.chat.id,
-        waiter_machine=wm,
     )
     areas = sorted(set(map(lambda x: x.area_name, groups)))
     for index, area in enumerate(areas):
@@ -53,10 +51,8 @@ async def choose_area(
         else:
             is_picked = index == 0
         choice_area.add_option(area, f"{area}", f"✅{area}", is_picked=is_picked)
-    chosen_area, choice_area_id = await choice_area.wait(
-        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
-    )
-    await message.ctx_api.delete_message(
+    chosen_area, choice_area_id = await choice_area.wait(message.api)
+    await message.api.delete_message(
         chat_id=message.chat.id,
         message_id=choice_area_id,
     )
@@ -70,12 +66,11 @@ async def choose_course(
     user_group_course: int | None,
 ) -> tuple[list[Group], int]:
     """Подменю выбора курса"""
-    choice_course = Choice(
+    choice_course = dp.choice(
         message="🎓 Выберите курс",
         ready_text="Далее ➡️",
         max_in_row=4,
         chat_id=message.chat.id,
-        waiter_machine=wm,
     )
     courses = sorted(set(map(lambda x: x.course, groups)))
     for index, course in enumerate(courses):
@@ -85,10 +80,8 @@ async def choose_course(
         else:
             is_picked = index == 0
         choice_course.add_option(course, f"{course}", f"✅{course}", is_picked=is_picked)
-    chosen_course, choice_course_id = await choice_course.wait(
-        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
-    )
-    await message.ctx_api.delete_message(
+    chosen_course, choice_course_id = await choice_course.wait(message.api)
+    await message.api.delete_message(
         chat_id=message.chat.id,
         message_id=choice_course_id,
     )
@@ -102,12 +95,11 @@ async def choose_group(
     user_group_id: int | None,
 ) -> tuple[str, int]:
     """Подменю выбора группы"""
-    group_choice = Choice(
+    group_choice = dp.choice(
         message="👥 Выберите группу",
         ready_text="Подтвердить👌",
         max_in_row=3,
         chat_id=message.chat.id,
-        waiter_machine=wm,
     )
     group_ids = list(map(lambda x: x.id, groups))
     for index, group in enumerate(groups):
@@ -119,7 +111,5 @@ async def choose_group(
         group_choice.add_option(
             str(group.id), f"{group.name}", f"✅{group.name}", is_picked=is_picked
         )
-    chosen, choice_id = await group_choice.wait(
-        CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api
-    )
+    chosen, choice_id = await group_choice.wait(message.api, CALLBACK_QUERY_FOR_MESSAGE)
     return chosen, choice_id
