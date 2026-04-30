@@ -16,6 +16,7 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        lib = pkgs.lib;
       in
       {
         devShells.default = pkgs.mkShell {
@@ -23,12 +24,12 @@
             pkgs.uv
             pkgs.gnumake
           ];
-          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+          LD_LIBRARY_PATH = lib.makeLibraryPath [
             pkgs.stdenv.cc.cc.lib
           ];
           shellHook = ''
             export UV_PYTHON_DOWNLOADS=never
-            export UV_PYTHON=${pkgs.python314}/bin/python3
+            export UV_PYTHON=${lib.getExe pkgs.python314}
             printf '\nWelcome to paraplan project!\n'
             printf 'Run: make\n\n'
           '';
