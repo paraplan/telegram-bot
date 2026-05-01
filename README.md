@@ -11,7 +11,7 @@ This project is written in Python and is a modern Telegram bot built with [teleg
 ```shell
 cp .env{.example,}
 ```
-3. Run `docker compose up --build -d`
+3. Run `docker compose pull && docker compose up -d`
 
 ## Development
 

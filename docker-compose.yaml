@@ -1,32 +1,51 @@
-version: "3.8"
-
 services:
   bot:
-    build:
-      context: .
-      dockerfile: ./src/bot/Dockerfile
+    image: vodogamer/paraplan:${CONTAINER_TAG:-latest}
     restart: unless-stopped
     container_name: ${PROJECT_NAME}_bot
+    command: /bin/sh -c ".venv/bin/python3 -m src.bot"
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
 
   daemon:
-    build:
-      context: .
-      dockerfile: ./src/daemon/Dockerfile
+    image: vodogamer/paraplan:${CONTAINER_TAG:-latest}
     restart: unless-stopped
     container_name: ${PROJECT_NAME}_daemon
+    command: /bin/sh -c ".venv/bin/python3 -m src.daemon"
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
+  migrations:
+    image: vodogamer/paraplan:${CONTAINER_TAG:-latest}
+    restart: on-failure:3
+    container_name: ${PROJECT_NAME}_migrations
+    command: /bin/sh -c ".venv/bin/alembic upgrade head"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:17-alpine
     restart: unless-stopped
     container_name: ${PROJECT_NAME}_postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
