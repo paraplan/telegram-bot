@@ -1,6 +1,5 @@
 from loguru import logger
-from telegrinder.node import global_node, scalar_node
-from telegrinder.node.nodes import UserId
+from telegrinder.node import UserId, global_node, scalar_node
 
 from src.database.models import User, UserSettings
 from src.database.repositories.factory import RepositoryFactory
