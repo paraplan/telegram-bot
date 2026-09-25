@@ -91,10 +91,11 @@ async def handle_date(
         release=Regex(r"\d{2}\.\d{2}\.\d{4}") | CallbackDataEq(["cancel", "today", "tomorrow"]),
     )
 
-    date: datetime.datetime
+    date: datetime.date
     match event:
         case MessageCute():
-            date = datetime.datetime.strptime(event.text.unwrap(), "%d.%m.%Y")
+            day, month, year = map(int, event.text.unwrap().split("."))
+            date = datetime.date(year, month, day)
         case CallbackQueryCute():
             callback_data = event.data.unwrap()
             if callback_data == "today":

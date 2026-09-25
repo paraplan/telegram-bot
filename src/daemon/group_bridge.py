@@ -45,21 +45,19 @@ async def process_diff_for_hours(
     schedule: Schedule,
 ) -> None:
     existing_hours = await repository.lesson.get(group_id=group.info.id, date=schedule.date)
-    subgroups = set(lesson.subgroup for lesson in existing_hours)
+    subgroups = {lesson.subgroup for lesson in existing_hours}
     logger.debug(f"Subgroups: {subgroups}")
     # if group has hours that has been deleted, delete them from database
     # for this we need to compare existing_hours with group.hours
     for subgroup in subgroups:
-        existing_hours_numbers = set(
+        existing_hours_numbers = {
             lesson.time_slot.lesson_number
             for lesson in existing_hours
             if lesson.subgroup == subgroup
-        )
-        new_hours_numbers = set(
-            hour_number
-            for hour_number in group.hours.keys()
-            if group.hours[hour_number].get(subgroup)
-        )
+        }
+        new_hours_numbers = {
+            hour_number for hour_number in group.hours if group.hours[hour_number].get(subgroup)
+        }
         diff = existing_hours_numbers - new_hours_numbers
         if diff:
             logger.debug(f"Diff of hours: {diff}")

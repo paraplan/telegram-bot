@@ -5,6 +5,7 @@ from sqlalchemy import func, insert, select
 
 from src.database.models import Schedule
 from src.database.repositories.abc import BaseRepository
+from src.env import TIMEZONE
 
 
 class ScheduleCreate(BaseModel):
@@ -34,7 +35,7 @@ class ScheduleRepository(BaseRepository[Schedule]):
             .group_by(Schedule.group_id)
             .group_by(Schedule.date)
             .having(Schedule.group_id == group_id)
-            .having(Schedule.date > datetime.date.today())
+            .having(Schedule.date > datetime.datetime.now(tz=TIMEZONE).date())
             .limit(1)
         )
         async with self.sessionmaker() as session:

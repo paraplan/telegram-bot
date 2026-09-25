@@ -43,7 +43,7 @@ async def choose_area(
         max_in_row=2,
         chat_id=message.chat.id,
     )
-    areas = sorted(set(map(lambda x: x.area_name, groups)))
+    areas = sorted({group.area_name for group in groups})
     for index, area in enumerate(areas):
         is_picked = False
         if user_group_area:
@@ -72,7 +72,7 @@ async def choose_course(
         max_in_row=4,
         chat_id=message.chat.id,
     )
-    courses = sorted(set(map(lambda x: x.course, groups)))
+    courses = sorted({group.course for group in groups})
     for index, course in enumerate(courses):
         is_picked = False
         if user_group_course and user_group_course in courses:
@@ -101,7 +101,7 @@ async def choose_group(
         max_in_row=3,
         chat_id=message.chat.id,
     )
-    group_ids = list(map(lambda x: x.id, groups))
+    group_ids = [group.id for group in groups]
     for index, group in enumerate(groups):
         is_picked: bool = False
         if user_group_id and user_group_id in group_ids:

@@ -32,7 +32,7 @@ async def process_day_type(
 async def process_time_slot(
     repository: RepositoryFactory, bells: list[BellsHoursSchema], day_type_id: int
 ) -> dict[int, int]:
-    result: dict[int, int] = dict()
+    result: dict[int, int] = {}
     for index, bell in enumerate(bells):
         time_slot_create = TimeSlotCreate(
             day_type_id=day_type_id,

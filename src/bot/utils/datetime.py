@@ -1,5 +1,5 @@
 import datetime
-from typing import Iterable
+from collections.abc import Iterable
 
 
 def datetime_filter(date: datetime.datetime | datetime.time) -> str:

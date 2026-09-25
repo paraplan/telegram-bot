@@ -1,8 +1,8 @@
 import datetime
 import functools
 import re
-from collections.abc import Awaitable
-from typing import Any, Callable, TypeVar
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from src.bot.utils.notification import send_notification
 from src.database import RepositoryFactory
@@ -11,10 +11,8 @@ from src.database.schemas import ScheduleType
 from src.schedule_parser.area import AreaSchema
 from src.schedule_parser.group import GroupSchema
 
-T = TypeVar("T")
 
-
-def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
+def check_lesson_updates[T](func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
     """
     Decorator that checks if lessons were updated after function execution.
     """
@@ -29,12 +27,12 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
         **kwargs: Any,
     ) -> T:
         old_lessons = await repository.lesson.get(group_id=group.info.id, date=schedule_date)
-        old_lesson_ids = sorted(map(lambda x: x.id, old_lessons))
+        old_lesson_ids = sorted(lesson.id for lesson in old_lessons)
 
         result = await func(repository, area, group, schedule_date, *args, **kwargs)
 
         new_lessons = await repository.lesson.get(group_id=group.info.id, date=schedule_date)
-        new_lesson_ids = sorted(map(lambda x: x.id, new_lessons))
+        new_lesson_ids = sorted(lesson.id for lesson in new_lessons)
 
         if old_lesson_ids == []:
             await send_notification(
@@ -50,7 +48,7 @@ def check_lesson_updates(func: Callable[..., Awaitable[T]]) -> Callable[..., Awa
 
 
 def check_lesson_types(lessons: list[Lesson]) -> ScheduleType:
-    lesson_types = set(map(lambda x: x.subject.name.lower(), lessons))
+    lesson_types = {lesson.subject.name.lower() for lesson in lessons}
     if all(re.match(r"^практика\s*\w*$", lesson_type) for lesson_type in lesson_types):
         return ScheduleType.PRACTICE
     elif lesson_types == {"сессия"}:
