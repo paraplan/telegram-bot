@@ -4,6 +4,7 @@ import orjson
 from loguru import logger
 
 from src.daemon.http_client import FetchError, get_schedule_data
+from src.env import TIMEZONE
 from src.schedule_parser.study_day import StudyDaySchema
 
 
@@ -33,7 +34,7 @@ async def get_schedules_for_updating() -> list[StudyDaySchema]:
 
 def get_business_day_with_delta(days_delta: int) -> datetime.date:
     """Returns the next business day with a given delta. Includes saturdays."""
-    today = datetime.date.today()
+    today = datetime.datetime.now(tz=TIMEZONE).date()
     if today.weekday() == 6:  # 6 == Sunday
         if days_delta >= 0:
             today += datetime.timedelta(days=1)

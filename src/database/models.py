@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import datetime
-from typing import List
 
 from sqlalchemy import (
     BigInteger,
@@ -33,7 +34,7 @@ class UserSettings(Base):
     is_notify_session: Mapped[bool] = mapped_column(Boolean, server_default=func.text("true"))
 
     # Relationships
-    user: Mapped["User"] = relationship(back_populates="settings")
+    user: Mapped[User] = relationship(back_populates="settings")
 
 
 class Group(Base):
@@ -46,8 +47,8 @@ class Group(Base):
     area_name: Mapped[str] = mapped_column(String, server_default=func.text("ССО"))
 
     # Relationships
-    users: Mapped[List["User"]] = relationship(back_populates="group")
-    schedules: Mapped[List["Schedule"]] = relationship(back_populates="group")
+    users: Mapped[list[User]] = relationship(back_populates="group")
+    schedules: Mapped[list[Schedule]] = relationship(back_populates="group")
 
     def __repr__(self):
         return f"Group(id={self.id}, full_name={self.full_name})"
@@ -76,7 +77,7 @@ class Room(Base):
     description: Mapped[str] = mapped_column(String)
 
     # Relationships
-    lessons: Mapped[List["Lesson"]] = relationship(back_populates="room")
+    lessons: Mapped[list[Lesson]] = relationship(back_populates="room")
 
     def __repr__(self):
         return f"Room(id={self.id}, room_number={self.room_number})"
@@ -89,7 +90,7 @@ class Teacher(Base):
     full_name: Mapped[str] = mapped_column(String)
 
     # Relationships
-    lessons: Mapped[List["Lesson"]] = relationship(back_populates="teacher")
+    lessons: Mapped[list[Lesson]] = relationship(back_populates="teacher")
 
     def __repr__(self):
         return f"Teacher(id={self.id}, full_name={self.full_name})"
@@ -103,7 +104,7 @@ class Subject(Base):
     name: Mapped[str] = mapped_column(String)
 
     # Relationships
-    lessons: Mapped[List["Lesson"]] = relationship(back_populates="subject")
+    lessons: Mapped[list[Lesson]] = relationship(back_populates="subject")
 
     def __repr__(self):
         return f"Subject(id={self.id}, name={self.name})"
@@ -116,7 +117,7 @@ class DayType(Base):
     name: Mapped[str] = mapped_column(String)
 
     # Relationships
-    time_slots: Mapped[List["TimeSlot"]] = relationship(back_populates="day_type")
+    time_slots: Mapped[list[TimeSlot]] = relationship(back_populates="day_type")
 
     def __repr__(self):
         return f"DayType(id={self.id}, name={self.name})"
@@ -133,7 +134,7 @@ class TimeSlot(Base):
 
     # Relationships
     day_type: Mapped[DayType] = relationship(back_populates="time_slots")
-    lessons: Mapped[List["Lesson"]] = relationship(back_populates="time_slot")
+    lessons: Mapped[list[Lesson]] = relationship(back_populates="time_slot")
 
     def __repr__(self):
         return f"TimeSlot(id={self.id}, start_time={self.start_time}, end_time={self.end_time})"
@@ -148,7 +149,7 @@ class Schedule(Base):
 
     # Relationships
     group: Mapped[Group] = relationship(back_populates="schedules")
-    lessons: Mapped[List["Lesson"]] = relationship(back_populates="schedule")
+    lessons: Mapped[list[Lesson]] = relationship(back_populates="schedule")
 
     def __repr__(self):
         return f"Schedule(id={self.id}, date={self.date})"

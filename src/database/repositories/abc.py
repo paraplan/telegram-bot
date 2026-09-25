@@ -1,19 +1,16 @@
 from abc import ABC
-from typing import Generic, TypeVar
 
 from sqlalchemy import Delete, Insert, Result, Select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.database.models import Base
 
-T = TypeVar("T", bound=Base)
 
-
-class ABCRepository(ABC, Generic[T]):
+class ABCRepository[T: Base](ABC):
     sessionmaker: async_sessionmaker[AsyncSession]
 
 
-class BaseRepository(ABCRepository[T], Generic[T]):
+class BaseRepository[T: Base](ABCRepository[T]):
     def __init__(self, sessionmaker: async_sessionmaker[AsyncSession]):
         self.sessionmaker = sessionmaker
 
@@ -25,7 +22,7 @@ class BaseRepository(ABCRepository[T], Generic[T]):
         return result
 
     async def _process_insert_or_select(
-        self, select_statement: Select[tuple[T]], insert_statement: Insert
+        self, select_statement: Select[T], insert_statement: Insert
     ) -> T:
         async with self.sessionmaker() as session:
             result = await session.execute(select_statement)

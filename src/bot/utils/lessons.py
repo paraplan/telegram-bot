@@ -36,7 +36,7 @@ SeminarsType = dict[int, list[GroupedSeminar]]
 
 
 def convert_schedule_to_seminars(schedule: list[Lesson]) -> SeminarsType:
-    seminars: SeminarsType = dict()
+    seminars: SeminarsType = {}
     for schedule_seminar in schedule:
         seminar = schedule_seminar
         item = GroupedSeminar(
@@ -56,7 +56,7 @@ def _group_seminar(items: list[GroupedSeminar], sub_group: int = 0) -> tuple[Gro
     # sub_group 0 = общие пары, 1 = первая подгруппа, 2 = вторая подгруппа
     # При выборе подгруппы показываем общие (0) + выбранную подгруппу
     is_schedule_subgrouped = False
-    items_subgroups = set((item.sub_group for item in items if item.name != "Физкультура"))
+    items_subgroups = {item.sub_group for item in items if item.name != "Физкультура"}
 
     # Если есть пары для разных подгрупп (1 и 2), расписание разделено по подгруппам
     if 1 in items_subgroups and 2 in items_subgroups:
@@ -81,7 +81,7 @@ def _group_seminar(items: list[GroupedSeminar], sub_group: int = 0) -> tuple[Gro
 def group_seminars(
     seminars: SeminarsType, sub_group: int = 0
 ) -> tuple[dict[int, GroupedSeminar], bool]:
-    grouped_seminars: dict[int, GroupedSeminar] = dict()
+    grouped_seminars: dict[int, GroupedSeminar] = {}
     is_schedule_subgrouped = False
     for index, item in seminars.items():
         result = _group_seminar(item, sub_group)
@@ -113,7 +113,7 @@ def _process_cabinets(
 
 
 def convert_seminars_to_pairs(seminars: dict[int, GroupedSeminar], sub_group: int = 1):
-    pairs: dict[int, PairModel] = dict()
+    pairs: dict[int, PairModel] = {}
     seminars_keys = list(seminars.keys())
     is_schedule_subgrouped = False
     i: int = seminars_keys[0]

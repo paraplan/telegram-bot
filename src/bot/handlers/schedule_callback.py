@@ -14,7 +14,7 @@ dp = Dispatch()
 async def handle_subgroup(
     callback: CallbackQuery, data: ScheduleCallbackData, repository: DBRepository
 ):
-    date = datetime.datetime.strptime(data.date, "%Y-%m-%d").date()
+    date = datetime.date.fromisoformat(data.date)
     group = await repository.group.get(data.group_id)
     text, keyboard = await render_schedule_for_date(
         repository, date, group, data.subgroup, data.is_week

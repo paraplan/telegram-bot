@@ -31,4 +31,5 @@ typecheck:
 format:
 	$(PYTHON) -m ruff format .
 
-check: lint typecheck format
+check: lint typecheck
+	$(PYTHON) -m ruff format --check .

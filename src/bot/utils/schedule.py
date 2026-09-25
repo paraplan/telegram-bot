@@ -1,6 +1,6 @@
 import dataclasses
 import datetime
-from typing import Iterable
+from collections.abc import Iterable
 
 from telegrinder import InlineButton, InlineKeyboard
 from telegrinder.types import InlineKeyboardMarkup
@@ -34,10 +34,10 @@ async def render_schedule_for_date(
     schedule = sorted(schedule, key=lambda x: x.time_slot.lesson_number)
     try:
         grouped_seminars, _ = convert_schedule_to_pairs(schedule, sub_group)
-    except Exception as e:
+    except (ValueError, TypeError, KeyError, IndexError) as e:
         return f"🚫 Ошибка при формировании расписания: {e}", kb.get_markup()
     # Расписание разделено по подгруппам если есть пары для подгруппы 1 и 2
-    subgroups_in_schedule = set((item.subgroup for item in schedule))
+    subgroups_in_schedule = {item.subgroup for item in schedule}
     is_schedule_subgrouped = 1 in subgroups_in_schedule and 2 in subgroups_in_schedule
     if is_schedule_subgrouped:
         buttons = _get_subgroups_keyboard(group.id, date, sub_group, is_week=is_week)
