@@ -569,7 +569,7 @@ wheels = [
 
 [[package]]
 name = "paraplan"
-version = "2.4.1"
+version = "2.4.2"
 source = { virtual = "." }
 dependencies = [
     { name = "aiohttp" },
