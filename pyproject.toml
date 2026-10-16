@@ -14,7 +14,6 @@ dependencies = [
     "asyncpg>=0.30.0",
     "alembic>=1.14.0",
     "sqlalchemy[asyncio]>=2.0.37",
-    "loguru>=0.7.3",
     "croniter>=6.0.0",
 ]
 
