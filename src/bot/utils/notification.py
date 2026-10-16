@@ -1,7 +1,7 @@
+import logging
 from datetime import date
 from typing import Literal
 
-from loguru import logger
 from telegrinder.types import ReplyKeyboardRemove
 
 from src.bot.client import api
@@ -9,6 +9,7 @@ from src.database.repositories.factory import RepositoryFactory
 from src.database.schemas import ScheduleType
 
 NotificationType = Literal["schedule_updated", "schedule_added"]
+logger = logging.getLogger(__name__)
 
 
 async def send_notification(
@@ -32,7 +33,7 @@ async def send_notification(
         "schedule_added": f"{emoji} Добавлено расписание {group.name} на {date:<b>%A</b>, %d %B}",
     }[notification_type]
     for user in users:
-        logger.debug(f"send notification to user: {user}")
+        logger.debug("Send notification to user %s", user)
         await api.send_message(
             chat_id=user.id,
             text=text,
