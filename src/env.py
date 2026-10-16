@@ -23,7 +23,8 @@ POSTGRES_DSN: Final[str] = (
 TIMEZONE: Final[ZoneInfo] = ZoneInfo(os.getenv("TIMEZONE", "Europe/Moscow"))
 DAEMON_CRONTAB: Final[str] = os.getenv("DAEMON_CRONTAB", "*/10 12-18 * * *")
 
-DAEMON_LOGGER_LEVEL: Final[str] = os.getenv("DAEMON_LOGGER_LEVEL", "DEBUG")
+DAEMON_LOGGER_LEVEL: Final[str | None] = os.getenv("DAEMON_LOGGER_LEVEL")  # deprecated
+LOG_LEVEL: Final[str] = os.getenv("LOG_LEVEL", "INFO")
 
 ALLOWED_USERS: Final[str | None] = os.getenv("ALLOWED_USERS")
 LIST_ALLOWED_USERS: Final[list[int]] = (
