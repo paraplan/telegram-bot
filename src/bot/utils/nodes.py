@@ -1,8 +1,11 @@
-from loguru import logger
+import logging
+
 from telegrinder.node import UserId, global_node, scalar_node
 
 from src.database.models import User, UserSettings
 from src.database.repositories.factory import RepositoryFactory
+
+logger = logging.getLogger(__name__)
 
 
 @global_node
@@ -19,7 +22,7 @@ class DBRepository:
 class UserDB:
     @classmethod
     async def __compose__(cls, user_id: UserId, db: DBRepository) -> User:
-        logger.debug(f"Getting user from database for user id: {user_id}")
+        logger.debug("Getting user from database by id %s ", user_id)
         return await db.user.select_or_insert(user_id)
 
 
@@ -27,5 +30,5 @@ class UserDB:
 class UserSettingsDB:
     @classmethod
     async def __compose__(cls, user_id: UserId, db: DBRepository) -> UserSettings:
-        logger.debug(f"Getting user settings from database for user id: {user_id}")
+        logger.debug("Getting user settings from database by id: %s", user_id)
         return await db.user_settings.select_or_insert(user_id)

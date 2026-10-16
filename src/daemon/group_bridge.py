@@ -1,6 +1,5 @@
 import datetime
-
-from loguru import logger
+import logging
 
 from src.daemon.decorators import check_lesson_updates
 from src.database import (
@@ -16,6 +15,8 @@ from src.schedule_parser.area import AreaSchema
 from src.schedule_parser.base import BaseItemSchema
 from src.schedule_parser.group import GroupSchema
 from src.schedule_parser.hours import HourSchema
+
+logger = logging.getLogger(__name__)
 
 
 @check_lesson_updates
@@ -46,7 +47,7 @@ async def process_diff_for_hours(
 ) -> None:
     existing_hours = await repository.lesson.get(group_id=group.info.id, date=schedule.date)
     subgroups = {lesson.subgroup for lesson in existing_hours}
-    logger.debug(f"Subgroups: {subgroups}")
+    logger.debug("Subgroups: %s", subgroups)
     # if group has hours that has been deleted, delete them from database
     # for this we need to compare existing_hours with group.hours
     for subgroup in subgroups:
@@ -60,7 +61,7 @@ async def process_diff_for_hours(
         }
         diff = existing_hours_numbers - new_hours_numbers
         if diff:
-            logger.debug(f"Diff of hours: {diff}")
+            logger.debug("Diff of hours: %s", diff)
         for lesson in existing_hours:
             if lesson.time_slot.lesson_number in diff:
                 await repository.lesson.delete(lesson.id)

@@ -1,11 +1,14 @@
 import datetime
+import logging
 
+import aiohttp
 import orjson
-from loguru import logger
 
-from src.daemon.http_client import FetchError, get_schedule_data
+from src.daemon.http_client import get_schedule_data
 from src.env import TIMEZONE
 from src.schedule_parser.study_day import StudyDaySchema
+
+logger = logging.getLogger(__name__)
 
 
 async def get_schedules_for_updating() -> list[StudyDaySchema]:
@@ -17,8 +20,8 @@ async def get_schedules_for_updating() -> list[StudyDaySchema]:
         day = get_business_day_with_delta(n)
         try:
             schedule_data = await get_schedule_data(day)
-        except FetchError as e:
-            logger.error(f"Failed to fetch schedule data for {day}: {e}")
+        except aiohttp.ClientError:
+            logger.exception("Failed to fetch schedule %s", day)
             n += 1
             continue
         schedule = StudyDaySchema(**orjson.loads(schedule_data))
@@ -28,7 +31,7 @@ async def get_schedules_for_updating() -> list[StudyDaySchema]:
             continue
         break
 
-    logger.debug(f"Found {len(schedules_for_updating)} schedules for updating")
+    logger.debug("Found %r schedules for updating", len(schedules_for_updating))
     return schedules_for_updating
 
 

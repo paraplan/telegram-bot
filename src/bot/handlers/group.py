@@ -1,4 +1,5 @@
-from loguru import logger
+import logging
+
 from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, Dispatch, Message
 from telegrinder.rules import Command
 
@@ -6,6 +7,8 @@ from src.bot.utils.nodes import DBRepository, UserDB
 from src.database.models import Group
 
 dp = Dispatch()
+
+logger = logging.getLogger(__name__)
 
 
 @dp.message(Command("group"))
