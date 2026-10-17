@@ -2,19 +2,20 @@ import json
 import logging
 from datetime import UTC, datetime
 
-from src.env import DAEMON_LOGGER_LEVEL, LOG_LEVEL
+from src.env import DAEMON_LOGGER_LEVEL, ENVIRONMENT, LOG_LEVEL
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
-        payload: dict[str, str | int] = {
-            "created": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
+        payload: dict[str, object] = {
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "level": record.levelname,
-            "module": record.module,
+            "logger": record.name,
             "line_number": record.lineno,
             "message": record.getMessage(),
+            "environment": ENVIRONMENT,
         }
         if record.exc_info:
             payload["exception"] = self.formatException(record.exc_info)
@@ -29,6 +30,6 @@ def configure_logging() -> None:
     root_logger.setLevel(DAEMON_LOGGER_LEVEL or LOG_LEVEL)
     root_logger.addHandler(handler)
     if DAEMON_LOGGER_LEVEL:
-        logger.warning(
+        _logger.warning(
             "DAEMON_LOGGER_LEVEL is deprecated and will be removed in the next major version. Use LOG_LEVEL instead"
         )
