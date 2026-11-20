@@ -31,7 +31,7 @@
             export UV_PYTHON_DOWNLOADS=never
             export UV_PYTHON=${lib.getExe pkgs.python314}
             printf '\nWelcome to paraplan project!\n'
-            printf 'Run: make\n\n'
+            printf 'Run: uv run paraplan or uv run daemon\n\n'
           '';
         };
       }

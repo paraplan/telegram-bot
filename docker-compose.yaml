@@ -3,7 +3,7 @@ services:
     image: vodogamer/paraplan:${CONTAINER_TAG:-latest}
     restart: unless-stopped
     container_name: ${PROJECT_NAME}_bot
-    command: /bin/sh -c ".venv/bin/python3 -m src.bot"
+    command: ["uv", "run", "--no-sync", "paraplan"]
     env_file:
       - .env
     depends_on:
@@ -16,7 +16,7 @@ services:
     image: vodogamer/paraplan:${CONTAINER_TAG:-latest}
     restart: unless-stopped
     container_name: ${PROJECT_NAME}_daemon
-    command: /bin/sh -c ".venv/bin/python3 -m src.daemon"
+    command: ["uv", "run", "--no-sync", "daemon"]
     env_file:
       - .env
     depends_on:
@@ -29,7 +29,7 @@ services:
     image: vodogamer/paraplan:${CONTAINER_TAG:-latest}
     restart: on-failure:3
     container_name: ${PROJECT_NAME}_migrations
-    command: /bin/sh -c ".venv/bin/alembic upgrade head"
+    command: ["uv", "run", "--no-sync", "alembic", "upgrade", "head"]
     env_file:
       - .env
     depends_on:

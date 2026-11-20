@@ -1,35 +1,33 @@
-.PHONY: install migration-generate migration-pull bot daemon lint typecheck format check
-
-PYTHON := .venv/bin/python3
+.PHONY: install migration-generate migration-pull migration-downgrade bot daemon lint typecheck format check
 
 install:
 	uv sync
 
 migration-generate:
 	@test -n "$(MSG)" || (echo "Error: MSG not set. Usage: make migration-generate MSG=\"Migration name\"" && exit 1)
-	$(PYTHON) -m alembic revision --autogenerate -m "$(MSG)"
+	uv run alembic revision --autogenerate -m "$(MSG)"
 
 migration-pull:
-	$(PYTHON) -m alembic upgrade head
+	uv run alembic upgrade head
 
 migration-downgrade:
 	@test -n "$(REV)" || (echo "Error: REV not set. Usage: make migration-downgrade REV=<revision>" && exit 1)
-	$(PYTHON) -m alembic downgrade $(REV)
+	uv run alembic downgrade $(REV)
 
 bot:
-	$(PYTHON) -m src.bot
+	uv run paraplan
 
 daemon:
-	$(PYTHON) -m src.daemon
+	uv run daemon
 
 lint:
-	$(PYTHON) -m ruff check src
+	uv run ruff check src
 
 typecheck:
-	$(PYTHON) -m basedpyright src
+	uv run basedpyright src
 
 format:
-	$(PYTHON) -m ruff format .
+	uv run ruff format .
 
 check: lint typecheck
-	$(PYTHON) -m ruff format --check .
+	uv run ruff format --check .

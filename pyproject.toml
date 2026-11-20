@@ -17,6 +17,14 @@ dependencies = [
     "croniter>=6.0.0",
 ]
 
+[project.scripts]
+paraplan = "paraplan.bot:main"
+daemon = "paraplan.daemon:main"
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
 [dependency-groups]
 dev = [
     "basedpyright>=1.39.3",
@@ -30,4 +38,3 @@ typeCheckingMode = "standard"
 
 [tool.ruff]
 line-length = 99
-
