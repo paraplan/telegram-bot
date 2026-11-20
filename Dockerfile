@@ -7,15 +7,15 @@ RUN apt-get update \
     && locale-gen \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-COPY uv.lock .python-version pyproject.toml ./
+COPY uv.lock .python-version pyproject.toml README.md ./
 
 FROM base AS dependencies
-RUN uv sync --frozen --no-dev
+RUN uv sync --locked --no-dev --no-install-project
+COPY src/ ./src/
+RUN uv sync --locked --no-dev --no-editable
 
 FROM base AS runtime
 COPY --from=dependencies /app/.venv /app/.venv
-COPY templates/ ./templates/
-COPY src/ ./src/
 COPY alembic.ini ./
 COPY migrations/ ./migrations/
 

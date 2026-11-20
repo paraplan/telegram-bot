@@ -25,4 +25,4 @@ Steps to set up the development environment:
 1. Run `nix develop`
 2. Run `make` to install Python dependencies
 3. Set up a PostgreSQL database and create the .env file from the example: `cp .env{.example,}`
-4. Check out the `Makefile` for available commands
+4. Run the bot with `make bot` or the scheduler with `make daemon`.
